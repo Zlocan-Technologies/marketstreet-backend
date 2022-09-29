@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Order;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -10,25 +11,25 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class saveLocation implements ShouldBroadcast
+class OrderPlaced implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
-    public $latitude;
-    public $longitude;
+    public $order;
    
-    public function __construct($latitude, $longitude)
+    public function __construct(Order $order)
     {
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
+        $this->order = $order;
     }
 
     public function broadcastOn()
     {
-        return new PrivateChannel('coordinates.{$userId}');
+        return new PrivateChannel('order.{$this->order}');
     }
 
     public function broadcastAs(){
-        return 'save.coordinates';
+        return 'order.placed';
     }
 }

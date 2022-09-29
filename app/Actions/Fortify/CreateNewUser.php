@@ -3,9 +3,8 @@
 namespace App\Actions\Fortify;
 
 use Carbon\Carbon;
-use App\Util\Helper;
 use App\Mail\VerifyAccountMail;
-use App\Models\{User, Wallet, Role, UserProfile, ChefProfile, ReferralCode};
+use App\Models\{User};
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 use Illuminate\Support\Facades\{DB, Mail};
@@ -29,6 +28,7 @@ class CreateNewUser implements CreatesNewUsers
                 'email' => $input['email'],
                 'phone' => $input['phone'],
                 'password' => $input['password'],
+                'email_verified_at' => Carbon::now()
             ]), function (User $user) use ($input) {
 
                 //if($input['user_type'] != "admin"):

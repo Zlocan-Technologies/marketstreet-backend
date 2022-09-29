@@ -47,8 +47,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
     ], function () {
         Route::get("/logout", [AuthController::class, "logout"]);
         Route::post("/refresh", [AuthController::class, "refresh"]);
-        Route::post("/change-password", [AuthController::class, "changePassword"]);
-        Route::post("/save-fcm-token", [AuthController::class, "saveFCMToken"]);
     });
     
     Route::group([
@@ -58,11 +56,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::post("/profile", [UserController::class, "updateProfileData"]);
         Route::post("/profile/photo", [UserController::class, "updateProfilePhoto"]);
         Route::delete("/delete", [UserController::class, "delete"]);
-        Route::get("/bank-detail/", [UserController::class, "getBankDetail"]);
+        Route::get("/bank-detail/{id}", [UserController::class, "getBankDetails"]);
         Route::delete("/bank-detail/{id}", [UserController::class, "deleteBankDetail"]);
         Route::post("/bank-detail/", [UserController::class, "updateBankDetail"]);
         Route::post("/transfer", [UserController::class, "transfer"]);
         Route::post("/newsletter", [UserController::class, "newsletter"]);
+        Route::post("/fcm-token", [UserController::class, "storeFcmToken"]);
     });
 
     Route::group([

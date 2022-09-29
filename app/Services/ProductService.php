@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\{User, Product, Category, Order, Review};
+use App\Models\{User, Product, Category, Order, Review, ProductImage};
 use App\Http\Requests\{CreateProduct, ReviewProduct};
 use App\Http\Resources\{ProductResource};
 use App\Util\{CustomResponse, Paystack, Flutterwave, Helper};
@@ -36,19 +36,21 @@ class ProductService
             'is_negotiable' => $request['is_negotiable']
         ]);
 
+        
         if($request->hasFile('image')):
             $image = $request->file('image');
             foreach($image as $photo):
                 $response = \Cloudinary\Uploader::upload($photo);
                 $url = $response["url"];
-                $product->images()->create([
-                    'url' => $url
+                ProductImage::create([
+                    'url' => $url,
+                    'product_id' => $product->id
                 ]);
             endforeach;
         endif;
 
         $message = "Product has been created";
-        return CustomResponse::success($message, $product);
+        return CustomResponse::success($message, $product->fresh());
     }
 
     public function update(CreateProduct $request, $id)
@@ -81,7 +83,7 @@ class ProductService
         endif;
 
         $message = "Product has been updated";
-        return CustomResponse::success($message, $product);
+        return CustomResponse::success($message, $product->fresh());
     }
 
     public function destroy($id)

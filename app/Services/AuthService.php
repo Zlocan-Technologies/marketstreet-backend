@@ -5,14 +5,12 @@ namespace App\Services;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Util\CustomResponse;
-use App\Http\Resources\UserResource;
 use App\Http\Requests\{LoginRequest, VerifyAccount, 
-    ResetPassword, ChangePassword, CreateUser, PasswordReset as PassReset};
+    ResetPassword, CreateUser, PasswordReset as PassReset};
 use App\Mail\{VerifyAccountMail, ResetPasswordMail};
 use Illuminate\Support\Facades\{DB, Mail, Hash, Http};
 use App\Actions\Fortify\{CreateNewUser, ResetUserPassword};
-use App\Models\{User, Wallet, Role, UserProfile, ChefProfile, PasswordReset};
-
+use App\Models\{User, PasswordReset};
 
 class AuthService
 {
@@ -44,8 +42,8 @@ class AuthService
             $createUser = new CreateNewUser;
             $user = $createUser->create($request->input());
 
-            $token = $user->createToken("MarketStreet")->plainTextToken;
-            $user->token = $token;
+            /*$token = $user->createToken("MarketStreet")->plainTextToken;
+            $user->token = $token;*/
         }catch(\Exception $e){
             $message = $e->getMessage();
             return CustomResponse::error($message);
@@ -159,44 +157,6 @@ class AuthService
             return CustomResponse::error($error_message);
         }
 
-        return CustomResponse::success($message, null);
-    }
-
-    public function changePassword(ChangePassword $request)
-    {   
-        $user = auth()->user();
-        try{
-            if((Hash::check($request['current_password'], $user->password)) == false):
-                $message = "Check your old password.";
-            elseif((Hash::check($request['password'], $user->password)) == true):
-                $message = "Please enter a password which is not similar to your current password.";
-            else:
-                $user->password = $request['password'];
-                $user->save();
-
-                $message = "Your password has been changed successfully";
-                return CustomResponse::success($message, null);
-            endif;
-        }catch(\Exception $e){
-            $error_message = $e->getMessage();
-            return CustomResponse::error($error_message);
-        }
-        
-        return CustomResponse::error($message, 400);
-    }
-
-    public function saveFCMToken(Request $request)
-    {
-        $user = auth()->user();
-        try{
-            $user->fcm_token = $request['token'];
-            $user->save();
-
-            $message = 'FCM token updated successfully';
-        }catch(\Exception $e){
-            $error_message = $e->getMessage();
-            return CustomResponse::error($error_message);
-        }
         return CustomResponse::success($message, null);
     }
 

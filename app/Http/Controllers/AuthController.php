@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use App\Http\Requests\{LoginRequest, VerifyAccount, 
-    ResetPassword, ChangePassword, CreateUser, PasswordReset as PassReset};
+    ResetPassword, CreateUser, PasswordReset as PassReset};
 
 class AuthController extends Controller
 {
@@ -54,16 +54,6 @@ class AuthController extends Controller
     public function passwordReset(PassReset $request)
     {
         return $this->authService->passwordReset($request);
-    }
-
-    public function changePassword(ChangePassword $request)
-    {
-        return $this->authService->changePassword($request);
-    }
-
-    public function saveFCMToken(Request $request)
-    {
-        return $this->authService->saveFCMToken($request);
     }
 
 }

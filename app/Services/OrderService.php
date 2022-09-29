@@ -97,6 +97,7 @@ class OrderService
 
         $total = $request['price'] * $request['quantity'];
         $total += $product->shipping_cost;
+        $total += $request['subcharge'];
         $reference = Helper::generateReference($buyer->id);
         $channel = isset($request['channel']) ? $request['channel'] : 'FLUTTERWAVE';
         $paymentUrl = $this->generatePaymentUrl($buyer, $channel, $total, $reference);
@@ -118,12 +119,14 @@ class OrderService
         return CustomResponse::success("Product:", $paymentUrl);
     }
 
-    public function checkCoupon(Request $request)
+    public function fetchCouponData(Request $request)
     {
         $coupon = DB::table('coupons')->where([
             'coupons' => $request['code']
         ])->first();
-
+        if(!$coupon):
+            return CustomResponse::error("Invalid Coupon Code", 404);
+        endif;
         return CustomResponse::success("Coupon:", $coupon);
     }
 

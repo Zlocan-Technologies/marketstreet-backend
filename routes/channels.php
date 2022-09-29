@@ -17,10 +17,6 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('message.{$userId}', function($user, $userId){
-    return (int) $user->id === (int) $userId;
-});
-
-Broadcast::channel('coordinates.{$userId}', function($user, $userId){
+Broadcast::channel('order.{order}', function($user, Order $order){
     return (int) $user->id === (int) $userId;
 });

@@ -83,35 +83,34 @@ class UserService
     public function updateProfileData(Request $request)
     {
         $user = auth()->user();
-        $user->firstname = $request['user']["firstname"];
-        $user->lastname = $request['user']["lastname"];
-        $user->phone = $request['user']["phone"];
+        $user->firstname = $request["user"]["firstname"];
+        $user->lastname = $request["user"]["lastname"];
+        $user->phone = $request["user"]["phone"];
         $user->save();
 
         $user->profile()->update([
-            'address' => $request['profile']["address"],
-            'state' => $request['profile']["state"]
+            'address' => $request["profile"]["address"],
+            'state' => $request["profile"]["state"]
         ]);
-
+        
         $message = "Profile updated Successfully";
         return CustomResponse::success($message, $user->fresh());
     }
 
-    public function getBankDetail()
+    public function getBankDetails()
     {
-        $user = auth()->user();
+        $bank = auth()->user()->bankDetail;
+        
         try{
-            $bank = $user->bankDetail;
             if(!$bank):
                 $message = "Account Details not found";
-                return CustomResponse::error($message, 404);
+                return CustomResponse::success($message, null, 404);
             endif;
+            return CustomResponse::success('Bank Account Details:', $bank);
         }catch(\Exception $e){
             $message = $e->getMessage();
             return CustomResponse::error($message);
         }
-
-        return CustomResponse::success('Bank Account Details:', $bank);
     }
 
     public function deleteBankDetail($id)
@@ -149,6 +148,21 @@ class UserService
             $message = $e->getMessage();
             return CustomResponse::error($message);
         }
+    }
+
+    public function storeFcmToken(Request $request)
+    {
+        $user = auth()->user();
+        try{
+            $user->fcm_token = $request['token'];
+            $user->save();
+
+            $message = 'FCM token updated successfully';
+        }catch(\Exception $e){
+            $error_message = $e->getMessage();
+            return CustomResponse::error($error_message);
+        }
+        return CustomResponse::success($message, null);
     }
 
 

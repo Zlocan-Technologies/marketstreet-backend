@@ -51,9 +51,9 @@ class UserController extends Controller
         return $this->userService->updateProfileData($request);
     }
 
-    public function getBankDetail()
+    public function getBankDetails()
     {
-        return $this->userService->getBankDetail();
+        return $this->userService->getBankDetails();
     }
 
     public function deleteBankDetail($id)
@@ -69,6 +69,11 @@ class UserController extends Controller
     public function getUserData($userId)
     {
         return $this->userService->getUserData($userId);
+    }
+
+    public function storeFcmToken(Request $request)
+    {
+        return $this->userService->storeFcmToken($request);
     }
     
 }
