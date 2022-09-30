@@ -15,8 +15,8 @@ class UserProfile extends Model
         'user_id',
         'state',
         'address',
-        'rating',
         
+        'rating',
         'orders',
         'sales',
         'customers',

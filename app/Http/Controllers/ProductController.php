@@ -45,13 +45,23 @@ class ProductController extends Controller
         return $this->productService->createCategories($request);
     }
 
+    public function review(ReviewProduct $request, $id)
+    {
+        return $this->productService->review($request, $id);
+    }
+
     public function getProducts($categoryId)
     {
         return $this->productService->getProducts($categoryId);
     }
 
-    public function review(ReviewProduct $request, $id)
+    public function FetchAllStoreProducts()
     {
-        return $this->productService->review($request, $id);
+        return $this->productService->FetchAllStoreProducts();
+    }
+
+    public function getAllUserProducts($userId)
+    {
+        return $this->productService->getAllUserProducts($userId);
     }
 }

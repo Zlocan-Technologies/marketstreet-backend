@@ -6,35 +6,43 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Util\{CustomResponse, Paystack, Flutterwave, Helper};
 use App\Http\Resources\{ProductResource};
-use App\Http\Requests\{CreateProduct, ReviewProduct};
+use App\Http\Requests\{CreateOrder, CreateInvoice};
 use Illuminate\Support\Facades\{DB, Http, Crypt, Hash, Mail};
 use App\Models\{User, Product, Category, Order, OrderContent};
 
 class OrderService
 {  
-    public function order(Request $request)
+    public function order(CreateOrder $request)
     {
         $user = auth()->user();
         $total = $request['total'];
         $reference = Helper::generateReference($user->id);
         $channel = strtoupper($request['payment_channel']);
         $paymentUrl = $this->generatePaymentUrl($user, $channel, $total, $reference);
+        $orderNo = mt_rand(1000, 9999);
         
-        $order = Order::create([
-            'user_id' => $user->id,
-            'total' => $total,
-            'reference' => $reference,
-            'payment_channel' => $channel,
-            'coupon_code' => isset($request['coupon_code']) ? $request['coupon_code'] : NULL
-        ]);
-        foreach($request['cart'] as $item):
-            $content = OrderContent::create([
-                'order_id' => $order->id,
-                'product_id' =>(int) $item['id'],
-                'quantity' =>(int) $item['quantity'],
-                'price' => $item['price']
+        DB::transaction(function(){
+            $order = Order::create([
+                'user_id' => $user->id,
+                'order_no' => $orderNo,
+                'subtotal' => $request['subtotal'],
+                'shipping_cost' => $request['shipping_cost'],
+                'subcharge' => $request['subcharge'],
+                'total' => $total,
+                'reference' => $reference,
+                'payment_channel' => $channel,
+                'coupon_code' => isset($request['coupon_code']) ? $request['coupon_code'] : NULL
             ]);
-        endforeach;
+            foreach($request['cart'] as $item):
+                $content = OrderContent::create([
+                    'order_id' => $order->id,
+                    'product_id' => (int) $item['id'],
+                    //'seller_id' => (int) $item['seller_id'],
+                    'quantity' =>(int) $item['quantity'],
+                    'price' => $item['price']
+                ]);
+            endforeach;
+        });
        
         return $paymentUrl;
     }
@@ -71,9 +79,9 @@ class OrderService
         return CustomResponse::success("Orders:", $orders);
     }
 
-    public function viewOrder($id)
+    public function show($id)
     {
-        $order = Order::where(['id' => $id])->first();
+        $order = Order::find($id);
         if(!$order) return CustomResponse::error('No order found', 404);
 
         return CustomResponse::success("Order Details:", $order);
@@ -86,43 +94,57 @@ class OrderService
         return Order::find(2)->products;
     }
 
-    public function sendInvoice(Request $request)
+    public function sendInvoice(CreateInvoice $request)
     {
         $seller = auth()->user();
-        $product = Product::find($id);
-        $productId = $request['productId'];
-        $price = $request['price'];
-        $quantity = isset($request['quantity']) ? $request['quantity'] : 1;
-        $buyer = User::find($request['buyerId']);
+        $product = Product::find($request["cart"]["id"]);
+        $price = $request["cart"]["price"];
+        $quantity = isset($request["cart"]["quantity"]) ? $request["cart"]["quantity"] : 1;
+        $buyer = User::find($request["id"]);
+        $subcharge = 700;
 
-        $total = $request['price'] * $request['quantity'];
+        $subtotal = $request["cart"]["price"] * $request["cart"]["quantity"];
+        $total = 0;
         $total += $product->shipping_cost;
-        $total += $request['subcharge'];
+        $total += $subcharge;
         $reference = Helper::generateReference($buyer->id);
-        $channel = isset($request['channel']) ? $request['channel'] : 'FLUTTERWAVE';
-        $paymentUrl = $this->generatePaymentUrl($buyer, $channel, $total, $reference);
+        $orderNo = mt_rand(1000, 9999);
         
         $order = Order::create([
             'user_id' => $buyer->id,
+            'order_no' => $orderNo,
+            'subtotal' => $subtotal,
+            'shipping_cost' => $product->shipping_cost,
+            'subcharge' => $subcharge,
             'total' => $total,
             'reference' => $reference,
-            'payment_channel' => $channel,
-            'coupon_code' => NULL
         ]);
         $content = OrderContent::create([
             'order_id' => $order->id,
-            'product_id' =>(int) $request['productId'],
-            'quantity' =>(int) $request['quantity'],
-            'price' => $request['price']
+            'product_id' =>(int) $request["cart"]["id"],
+            'quantity' =>(int) $request["cart"]["quantity"],
+            'price' => $request["cart"]["price"]
         ]);
        
-        return CustomResponse::success("Product:", $paymentUrl);
+        return CustomResponse::success("An invoice has been sent to the buyer", $order->fresh());
     }
 
-    public function fetchCouponData(Request $request)
+    public function invoicePayment(Request $request)
+    {
+        $order = Order::find($request['id']);
+        $user = User::find($order->user_id);
+        $channel = strtoupper($request['payment_channel']);
+        $total = $order->total;
+        $reference = $order->reference;
+        $paymentUrl = $this->generatePaymentUrl($user, $channel, $total, $reference);
+
+        return CustomResponse::success("Payment Link:", $paymentUrl);
+    }
+
+    public function fetchCouponData($code)
     {
         $coupon = DB::table('coupons')->where([
-            'coupons' => $request['code']
+            'code' => $code
         ])->first();
         if(!$coupon):
             return CustomResponse::error("Invalid Coupon Code", 404);

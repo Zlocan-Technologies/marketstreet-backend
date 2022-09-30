@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\OrderService;
+use App\Http\Requests\{CreateOrder, CreateInvoice};
 
 class OrderController extends Controller
 {
@@ -14,7 +15,7 @@ class OrderController extends Controller
         $this->orderService = $orderService;
     }
 
-    public function order(Request $request)
+    public function order(CreateOrder $request)
     {
         return $this->orderService->order($request);
     }
@@ -24,13 +25,23 @@ class OrderController extends Controller
         return $this->orderService->listOrdersForBuyer();
     }
 
-    public function viewOrder($id)
+    public function show($id)
     {
-        return $this->orderService->viewOrder($id);
+        return $this->orderService->show($id);
     }
 
     public function test()
     {
         return $this->orderService->test();
+    }
+
+    public function sendInvoice(CreateInvoice $request)
+    {
+        return $this->orderService->sendInvoice($request);
+    }
+
+    public function fetchCouponData($code)
+    {
+        return $this->orderService->fetchCouponData($code);
     }
 }

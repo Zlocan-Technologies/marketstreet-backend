@@ -18,8 +18,13 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('address', 255)->nullable();
-            $table->double('rating')->default(0);
             $table->string('state', 50)->nullable();
+
+            $table->integer('orders')->default(0);
+            $table->integer('sales')->default(0);
+            $table->double('rating')->default(0);
+            $table->integer('customers')->default(0);
+            $table->integer('reviews')->default(0);
             $table->timestamps();
         });
     }
