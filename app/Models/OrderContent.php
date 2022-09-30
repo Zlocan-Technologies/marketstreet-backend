@@ -12,6 +12,7 @@ class OrderContent extends Model
     protected $fillable = [
         'order_id',
         'product_id',
+        //'seller_id',
         'quantity',
         'price',
     ];
@@ -21,7 +22,13 @@ class OrderContent extends Model
         'updated_at',
     ];
 
-    public function order(){
+    public function order()
+    {
         return $this->belongsTo(Order::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

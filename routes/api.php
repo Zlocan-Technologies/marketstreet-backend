@@ -10,8 +10,6 @@ use App\Http\Controllers\{
 };
 
 Route::group(['prefix' => 'v1'], function () {
-    //Route::post("/create-roles", [UserController::class, "createRoles"]);
-
     Route::group([
         'prefix' => 'auth'
     ], function () {
@@ -80,15 +78,25 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::post("/review/{id}", [ProductController::class, "review"]);
         Route::post("/update/{id}", [ProductController::class, "update"]);
         Route::delete("/{id}", [ProductController::class, "destroy"]);
+
+        Route::get("/{userId}/get-products", [ProductController::class, "getAllUserProducts"]);
     });
 
-    Route::post("/order", [OrderController::class, "order"]);
-    Route::get("/buyer/orders", [OrderController::class, "listOrdersForBuyer"]);
-    Route::get("/buyer/order/{id}", [OrderController::class, "viewOrder"]);
+    Route::get("/all-products", [ProductController::class, "FetchAllStoreProducts"]);
 
-    Route::get("/seller/orders", [OrderController::class, "listOrdersForSeller"]);
-    Route::get("/seller/order/{id}", [OrderController::class, "viewOrderForSeller"]);
+    Route::group([
+        'prefix' => 'order'
+    ], function () {
+        Route::get("/{id}", [OrderController::class, "show"]);
+        Route::get("/buyer/get-all-orders", [OrderController::class, "listOrdersForBuyer"]);
+        Route::post("/", [OrderController::class, "order"]);
+        Route::post("/send-invoice", [OrderController::class, "sendInvoice"]);
+    });
 
+    Route::get("/seller/get-all-orders", [OrderController::class, "listOrdersForSeller"]);
+    Route::get("/seller/order/{id}", [OrderController::class, "showOrderSeller"]);
+
+    Route::get("/coupon/{code}", [OrderController::class, "fetchCouponData"]);
 });
 
 Route::get("/test-order", [OrderController::class, "test"]);

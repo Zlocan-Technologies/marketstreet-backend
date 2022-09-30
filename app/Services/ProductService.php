@@ -123,15 +123,6 @@ class ProductService
         return CustomResponse::success("Categories:", NULL);
     }
 
-    public function getProducts($categoryId)
-    {
-        $category = Category::find($categoryId);
-        if(!$category) return CustomResponse::error('Category not found', 404);
-
-        $products = $category->products;
-        return CustomResponse::success("Products:", $products);
-    }
-
     public function review(ReviewProduct $request, $id)
     {
         $user = auth()->user();
@@ -144,6 +135,12 @@ class ProductService
                 'rating' => $request['rating']
             ]);
 
+            $owner = Product::find($id)->owner;
+            $reviews = $owner->profile->reviews + 1;
+            $owner->profile()->update([
+                'reviews' => $reviews
+            ]);
+
         }catch(\Exception $e){
             $message = $e->getMessage();
             return CustomResponse::error($message);
@@ -152,10 +149,27 @@ class ProductService
         return CustomResponse::success("successful", $review);
     }
 
-    public function getSellerProducts()
+    public function getProducts($categoryId)
     {
-        $products = Product::with('category')->where([
-            'seller_id' => auth()->user()->id
+        $category = Category::find($categoryId);
+        if(!$category) return CustomResponse::error('Category not found', 404);
+
+        $products = $category->products;
+        return CustomResponse::success("Products:", $products);
+    }
+
+    public function FetchAllStoreProducts()
+    {
+        $products = Product::without('reviews', 'owner')->get();
+        return CustomResponse::success("Products:", $products);
+    }
+
+    public function getAllUserProducts($userId)
+    {
+        $products = Product::with('category')
+        ->without('reviews', 'owner')
+        ->where([
+            'seller_id' => $userId
         ])->get();
         return CustomResponse::success("Products:", $products);
     }

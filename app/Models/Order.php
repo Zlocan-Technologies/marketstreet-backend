@@ -15,6 +15,10 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'order_no',
+        'subtotal',
+        'shipping_cost',
+        'subcharge',
         'total',
         'reference',
         'payment_status',
@@ -25,7 +29,6 @@ class Order extends Model
 
     protected $hidden = [
         'created_at',
-        //'updated_at',
     ];
 
     protected $with = ['contents'];
