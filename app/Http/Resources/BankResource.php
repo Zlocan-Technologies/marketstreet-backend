@@ -14,7 +14,6 @@ class BankResource extends JsonResource
      */
     public function toArray($request)
     {
-        //return parent::toArray($request);
         return [
             'name' => $this->resource['name'],
             'code' => $this->resource['code'],

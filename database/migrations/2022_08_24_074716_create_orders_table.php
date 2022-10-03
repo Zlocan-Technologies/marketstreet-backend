@@ -18,10 +18,10 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('order_no')->unique();
-            $table->integer('total');
-            $table->integer('subtotal');
-            $table->integer('shipping_cost');
-            $table->integer('subcharge');
+            $table->integer('total')->unsigned();
+            $table->integer('subtotal')->unsigned();
+            $table->integer('shipping_cost')->unsigned();
+            $table->integer('subcharge')->unsigned();
             $table->string('reference')->unique();
             $table->enum('payment_status', ['pending', 'success', 'failed'])->default('pending');
             $table->enum('order_status', ['pending', 'completed', 'cancelled', 'in progress'])->default('pending');

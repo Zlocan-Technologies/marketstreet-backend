@@ -16,7 +16,10 @@ class CreateInvoice extends FormRequest
     public function rules()
     {
         return [
-            
+            'id' => ['required', 'integer'],
+            'cart.id' => ['required', 'integer'],
+            'cart.price' => ['required', 'integer'],
+            'cart.quantity' => ['integer']
         ];
     }
 

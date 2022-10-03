@@ -69,6 +69,13 @@ class ProductService
             'is_negotiable' => $request['is_negotiable']
         ]);
 
+        $images = $product->images()->pluck('url');
+        foreach($images as $image):
+            $parts = explode('/', $image);
+            $count = count($parts);
+            $publicId = explode('.', $parts[$count - 1]);
+            $response = \Cloudinary\Uploader::destroy($publicId[0]);
+        endforeach;
         $product->images()->delete();
 
         if($request->hasFile('image')):
@@ -91,6 +98,9 @@ class ProductService
         $product = Product::find($id);
         if(!$product) return CustomResponse::error('Product not found', 404);
 
+        foreach($product->images as $image):
+            $image->delete();
+        endforeach;
         $product->delete();
         $message = "Product deleted";
         return CustomResponse::success($message, null);

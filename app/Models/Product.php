@@ -20,12 +20,14 @@ class Product extends Model
         'description',
         'sales',
         'shipping_cost',
-        'is_negotiable'
+        'is_negotiable',
+        'is_active'
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
+        //'is_active'
     ];
 
     protected $with = ['reviews', 'images', 'owner'];
@@ -50,9 +52,9 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 
-    public function orders()
+    public function subOrders()
     {
-        return $this->belongsToMany(Order::class, 'order_contents');
+        return $this->belongsToMany(SubOrder::class, 'order_contents');
     }
 
 }

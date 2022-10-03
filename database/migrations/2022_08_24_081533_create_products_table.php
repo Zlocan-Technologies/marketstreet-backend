@@ -27,6 +27,7 @@ return new class extends Migration
             $table->integer('sales')->default(0);
             $table->string('shipping_cost');
             $table->boolean('is_negotiable')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
