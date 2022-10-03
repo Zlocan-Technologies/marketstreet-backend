@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Resources\WalletResource;
+use App\Events\OrderPlaced;
 use App\Util\{CustomResponse, Paystack, Flutterwave, Helper};
 use App\Models\{Transaction, User};
 //use App\Http\Requests\{TransferRequest};
@@ -62,27 +62,20 @@ class TransactionService
     public function transfer(TransferRequest $request)
     {
         $user = auth()->user();
-        
-        if($wallet->available_balance < $request->amount):
-            $message = "Insufficient Balance";
-            return CustomResponse::error($message, 400);
-        endif;
-
+        $account = $user->bankDetail;
         try{
-            $paystack = new Paystack;
-            $recipient = $paystack->createTransferRecipient(
-                Crypt::decryptString($wallet->account_number),
-                Crypt::decryptString($wallet->account_name),
-                $wallet->bank_code
+            $payment = new Paystack;
+            $recipient = $payment->createTransferRecipient(
+                $account->account_number,
+                $account->account_name,
+                $account->bank_code
             );
 
-            $wallet->available_balance -= $request->amount;
-            $wallet->save();
             $reference = Helper::generateReference($user->id);
             $transaction = Transaction::create([
                 'wallet_id' => $wallet->id,
                 'type' => 'Debit',
-                'amount' => $request->amount,
+                'amount' => $request['amount'],
                 'reference' => $reference,
                 'method'  => 'Bank Transfer'
             ]);
@@ -90,13 +83,12 @@ class TransactionService
             return $payment->sendMoney(
                 [
                     'recipient' => $recipient['data']["recipient_code"],
-                    'amount' => $request->amount * 100,
-                    'source' => "balance",
+                    'amount' => $request['amount'],
                     'reason' => "Workpro Withdrawal Testing thursday",
                     'reference' => $reference
                 ]
             );
-            //return CustomResponse::success($response['message'], $data);
+
         }catch(\Exception $e){
             $message = $e->getMessage();
             return CustomResponse::error($message);

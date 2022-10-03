@@ -15,14 +15,12 @@ return new class extends Migration
     {
         Schema::create('order_contents', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+            $table->unsignedBigInteger('sub_order_id');
+            $table->foreign('sub_order_id')->references('id')->on('sub_orders')->onDelete('cascade');
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            /*$table->unsignedBigInteger('seller_id');
-            $table->foreign('seller_id')->references('id')->on('users')->onDelete('cascade');*/
             $table->string('price');
-            $table->integer('quantity');
+            $table->integer('quantity')->unsigned();
             $table->timestamps();
         });
     }

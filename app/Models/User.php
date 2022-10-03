@@ -104,4 +104,9 @@ class User extends Authenticatable
         return $this->hasOne(Address::class);
     } 
 
+    public function subOrders()
+    {
+        return $this->hasMany(SubOrder::class, 'seller_id');
+    }
+
 }

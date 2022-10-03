@@ -40,6 +40,11 @@ class OrderController extends Controller
         return $this->orderService->sendInvoice($request);
     }
 
+    public function invoicePayment(Request $request)
+    {
+        return $this->orderService->invoicePayment($request);
+    }
+
     public function fetchCouponData($code)
     {
         return $this->orderService->fetchCouponData($code);

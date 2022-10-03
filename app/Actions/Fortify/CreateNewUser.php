@@ -32,6 +32,7 @@ class CreateNewUser implements CreatesNewUsers
             ]), function (User $user) use ($input) {
 
                 //if($input['user_type'] != "admin"):
+                    $user->profile()->create([]);
 
                     $code = mt_rand(1000, 9999);
                     DB::table('user_verification')

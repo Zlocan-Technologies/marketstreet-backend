@@ -64,6 +64,13 @@ class UserService
     public function updateProfilePhoto(SavePhoto $request)
     {
         $user = auth()->user();
+        $photo = $user->photo;
+        if($photo):
+            $parts = explode('/', $photo);
+            $count = count($parts);
+            $publicId = explode('.', $parts[$count - 1]);
+            $response = \Cloudinary\Uploader::destroy($publicId[0]);
+        endif;
         try{
             if($request->hasFile('photo')):
                 $photo = $request->file('photo');

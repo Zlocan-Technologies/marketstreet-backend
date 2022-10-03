@@ -4,9 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     AuthController, 
+    UserController,
     ProductController, 
     OrderController,
-    UserController
 };
 
 Route::group(['prefix' => 'v1'], function () {
@@ -91,6 +91,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::get("/buyer/get-all-orders", [OrderController::class, "listOrdersForBuyer"]);
         Route::post("/", [OrderController::class, "order"]);
         Route::post("/send-invoice", [OrderController::class, "sendInvoice"]);
+        Route::post("/invoice-payment", [OrderController::class, "invoicePayment"]);
     });
 
     Route::get("/seller/get-all-orders", [OrderController::class, "listOrdersForSeller"]);

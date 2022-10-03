@@ -22,7 +22,11 @@ class CreateOrder extends FormRequest
             'total' => [],
             'reference' => [],
             'payment_channel' => [],
-            'coupon_code' => isset($request['coupon_code']) ? $request['coupon_code'] : NULL*/
+            'coupon_code' => isset($request['coupon_code']) ? $request['coupon_code'] : NULL
+            'id' => ['required', 'integer'],
+            'cart.id' => ['required', 'integer'],
+            'cart.price' => ['required', 'integer'],
+            'cart.quantity' => ['integer']*/
         ];
     }
 

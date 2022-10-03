@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Order;
+use App\Models\SubOrder;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -17,6 +19,10 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('order.{order}', function($user, Order $order){
-    return (int) $user->id === (int) $userId;
+Broadcast::channel('order.{orderId}', function($user, $orderId){
+    return (int) $user->id === SubOrder::findOrFail($orderId)->seller_id;
+});
+
+Broadcast::channel('invoice.{orderId}', function($user, $orderId){
+    return (int) $user->id === Order::findOrFail($orderId)->user_id;
 });
