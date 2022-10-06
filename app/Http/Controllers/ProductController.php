@@ -68,9 +68,9 @@ class ProductController extends Controller
         return $this->productService->getAllUserProducts($userId);
     }
 
-    public function addProductToWishlist(Request $request)
+    public function addProductToWishlist($id)
     {
-        return $this->productService->addProductToWishlist($request);
+        return $this->productService->addProductToWishlist($id);
     }
 
     public function getWishlist()
@@ -78,8 +78,8 @@ class ProductController extends Controller
         return $this->productService->getWishlist();
     }
 
-    public function FetchProductsByPrice(Request $request)
+    public function FetchProductsByPrice($min, $max)
     {
-        return $this->productService->FetchProductsByPrice($request);
+        return $this->productService->FetchProductsByPrice($min, $max);
     }
 }

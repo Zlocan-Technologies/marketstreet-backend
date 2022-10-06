@@ -27,7 +27,8 @@ use App\Models\{
     Category, 
     Order, 
     Review, 
-    ProductImage
+    ProductImage,
+    Wishlist
 };
 
 
@@ -50,7 +51,7 @@ class ProductService
             'category_id' => $request['category_id'],
             'name' => $request['name'],
             'brand' => $request['brand'],
-            'quantity' => isset($request['quantity']) ? $request['quantity'] : NULL,
+            'stock' => isset($request['quantity']) ? $request['quantity'] : NULL,
             'price' => $request['price'],
             'description' => $request['description'],
             'shipping_cost' => $request['shipping_cost'],
@@ -84,7 +85,7 @@ class ProductService
             'category_id' => $request['category_id'],
             'name' => $request['name'],
             'brand' => $request['brand'],
-            'quantity' => isset($request['quantity']) ? $request['quantity'] : NULL,
+            'stock' => isset($request['quantity']) ? $request['quantity'] : NULL,
             'price' => $request['price'],
             'description' => $request['description'],
             'shipping_cost' => $request['shipping_cost'],
@@ -115,7 +116,7 @@ class ProductService
             'category_id' => $request['category_id'],
             'name' => $request['name'],
             'brand' => $request['brand'],
-            'quantity' => isset($request['quantity']) ? $request['quantity'] : NULL,
+            'stock' => isset($request['quantity']) ? $request['quantity'] : NULL,
             'price' => $request['price'],
             'description' => $request['description'],
             'shipping_cost' => $request['shipping_cost'],
@@ -239,30 +240,52 @@ class ProductService
         return CustomResponse::success("Products:", $products);
     }
 
-    public function addProductToWishlist(Request $request)
+    public function addProductToWishlist($id)
     {
-        $wishlist = Wishlist::create([
-            'user_id' => auth()->user()->id,
-            'product_id' => $request['id']
-        ]);
-        $message = "Product has been added to wishlist";
-        return CustomResponse::success($message, $wishlist);
+        $user = auth()->user();
+        $product = Product::find($id);
+        if(!$product) return CustomResponse::error('Product not found', 404);
+
+        $check = Wishlist::where([
+            'user_id' => $user->id,
+            'product_id' =>(int) $id
+        ])->first();
+
+        if(is_null($check)):
+            $wishlist = Wishlist::create([
+                'user_id' => $user->id,
+                'product_id' => $id,
+                'name' => $product->name,
+                'brand' => $product->brand,
+                'price' => $product->price,
+                'image' => $product->images
+            ]);
+            $message = "Product has been added to wishlist";
+            $data = $wishlist;
+        else:
+            $data = null;
+            $message = "Product has already been added to wishlist";
+        endif;
+        
+        return CustomResponse::success($message, $data);
     }
 
     public function getWishlist()
     {
-        $user = auth()->user()->id;
+        $user = auth()->user();
         $wishlists = $user->wishlists;
         return CustomResponse::success("Wishlists:", $wishlists);
     }
 
-    public function FetchProductsByPrice(Request $request)
+    public function FetchProductsByPrice($min, $max)
     {
-        $min = $request['minPrice'];
-        $max = $request['maxPrice'];
+        $min = (int) $min;
+        $max = (int) $max;
+    
         $products = Product::without('reviews', 'owner')
         ->whereBetween('price', [$min, $max])
         ->get();
+
         return CustomResponse::success("Products:", $products);
     }
     
