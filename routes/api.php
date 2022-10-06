@@ -60,6 +60,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::post("/transfer", [UserController::class, "transfer"]);
         Route::post("/newsletter", [UserController::class, "newsletter"]);
         Route::post("/fcm-token", [UserController::class, "storeFcmToken"]);
+        Route::get("/get-wishlist/", [OrderController::class, "getWishlist"]);
+        Route::post("/add-to-wishlist/", [OrderController::class, "addProductToWishlist"]);
     });
 
     Route::group([
@@ -83,6 +85,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
     });
 
     Route::get("/all-products", [ProductController::class, "FetchAllStoreProducts"]);
+    Route::get("/products-range", [ProductController::class, "FetchProductsByPrice"]);
 
     Route::group([
         'prefix' => 'order'
@@ -98,6 +101,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
     Route::get("/seller/order/{id}", [OrderController::class, "showOrderSeller"]);
 
     Route::get("/coupon/{code}", [OrderController::class, "fetchCouponData"]);
+
 });
 
 Route::get("/test-order", [OrderController::class, "test"]);

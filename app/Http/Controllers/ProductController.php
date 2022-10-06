@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ProductService;
-use App\Http\Requests\{CreateProduct, ReviewProduct};
+use App\Http\Requests\{
+    CreateProduct, 
+    ReviewProduct
+};
 
 class ProductController extends Controller
 {
@@ -63,5 +66,20 @@ class ProductController extends Controller
     public function getAllUserProducts($userId)
     {
         return $this->productService->getAllUserProducts($userId);
+    }
+
+    public function addProductToWishlist(Request $request)
+    {
+        return $this->productService->addProductToWishlist($request);
+    }
+
+    public function getWishlist()
+    {
+        return $this->productService->getWishlist();
+    }
+
+    public function FetchProductsByPrice(Request $request)
+    {
+        return $this->productService->FetchProductsByPrice($request);
     }
 }

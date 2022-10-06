@@ -13,13 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('addresses', function (Blueprint $table) {
+        Schema::create('dropships', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->string('address', 255)->nullable();
-            $table->string('city')->nullable();
-            $table->string('state')->nullable();
+            $table->unsignedBigInteger('original_product_id');
+            $table->foreign('original_product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->unsignedBigInteger('dropship_product_id');
+            $table->foreign('dropship_product_id')->references('id')->on('products')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('addresses');
+        Schema::dropIfExists('drop_ships');
     }
 };

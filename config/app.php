@@ -178,7 +178,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         //Customer Service Providers
-        App\Providers\RepositoryServiceProvider::class,
+        //App\Providers\RepositoryServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
 
     ],

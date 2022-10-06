@@ -4,11 +4,27 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\{User, BankAccount};
-use App\Http\Requests\{ResolveAccount, SavePhoto};
+use App\Http\Requests\{
+    ResolveAccount, 
+    SavePhoto
+};
 use App\Http\Resources\BankResource;
-use App\Util\{CustomResponse, Paystack, Flutterwave};
-use Illuminate\Support\Facades\{DB, Http, Crypt, Hash, Mail};
+use App\Util\{
+    CustomResponse,
+    Paystack, 
+    Flutterwave
+};
+use Illuminate\Support\Facades\{
+    DB, 
+    Http, 
+    Crypt, 
+    Hash, 
+    Mail
+};
+use App\Models\{
+    User, 
+    BankAccount
+};
 
 class UserService
 {

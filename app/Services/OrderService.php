@@ -71,6 +71,18 @@ class OrderService
             $array = [];
             foreach($request['cart'] as $item):
                 $product = Product::find($item['id']);
+                if($product->is_dropshipped):
+                    $actualId = $product->dropship()->pluck('original_product_id')->first();
+                    $product = Product::find($actualId);
+                    $itemId = $product->id;
+                    $price = $product->price;
+                    $total = $price * $item['quantity'];
+                else:
+                    $itemId = $item['id'];
+                    $price = $item['price'];
+                    $total = $price * $item['quantity'];
+                endif;
+
                 if(in_array($product->seller_id, $array)):
                     $sub = SubOrder::where([
                         'order_no' => $orderNo,
@@ -78,10 +90,12 @@ class OrderService
                     ])->first();
                     $content = OrderContent::create([
                         'sub_order_id' => $sub->id,
-                        'product_id' => (int) $item['id'],
+                        'product_id' => (int) $itemId,
                         'quantity' =>(int) $item['quantity'],
-                        'price' => $item['price']
+                        'price' => $price
                     ]);
+                    $sub->total += $total;
+                    $sub->save();
                 else:
                     $subOrder = SubOrder::create([
                         'seller_id' => $product->seller_id,
@@ -91,11 +105,12 @@ class OrderService
                     ]);
                     $content = OrderContent::create([
                         'sub_order_id' => $subOrder->id,
-                        'product_id' => (int) $item['id'],
+                        'product_id' => (int) $itemId,
                         'quantity' =>(int) $item['quantity'],
-                        'price' => $item['price']
+                        'price' => $price
                     ]);
                 endif;
+                
                 array_push($array, $product->seller_id);
 
                 OrderPlaced::dispatch($subOrder->fresh());
