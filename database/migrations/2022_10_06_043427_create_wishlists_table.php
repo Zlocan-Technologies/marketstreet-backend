@@ -19,6 +19,10 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->string('name');
+            $table->string('brand')->nullable();
+            $table->integer('price');
+            $table->json('image');
             $table->timestamps();
         });
     }

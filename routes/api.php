@@ -60,8 +60,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::post("/transfer", [UserController::class, "transfer"]);
         Route::post("/newsletter", [UserController::class, "newsletter"]);
         Route::post("/fcm-token", [UserController::class, "storeFcmToken"]);
-        Route::get("/get-wishlist/", [OrderController::class, "getWishlist"]);
-        Route::post("/add-to-wishlist/", [OrderController::class, "addProductToWishlist"]);
     });
 
     Route::group([
@@ -81,11 +79,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::post("/update/{id}", [ProductController::class, "update"]);
         Route::delete("/{id}", [ProductController::class, "destroy"]);
 
-        Route::get("/{userId}/get-products", [ProductController::class, "getAllUserProducts"]);
+        Route::get("/{userId}/products", [ProductController::class, "getAllUserProducts"]);
     });
 
-    Route::get("/all-products", [ProductController::class, "FetchAllStoreProducts"]);
-    Route::get("/products-range", [ProductController::class, "FetchProductsByPrice"]);
+    Route::get("/products", [ProductController::class, "FetchAllStoreProducts"]);
+    Route::get("/products/{min}/{max}", [ProductController::class, "FetchProductsByPrice"]);
+    Route::get("/wishlist/", [ProductController::class, "getWishlist"]);
+    Route::post("/wishlist/{id}", [ProductController::class, "addProductToWishlist"]);
 
     Route::group([
         'prefix' => 'order'
