@@ -21,13 +21,15 @@ class Product extends Model
         'sales',
         'shipping_cost',
         'is_negotiable',
-        'is_active'
+        'is_active',
+        'is_dropshipped',
+        'has_been_dropshipped'
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        //'is_active'
+        'is_active'
     ];
 
     protected $with = ['reviews', 'images', 'owner'];
@@ -55,6 +57,11 @@ class Product extends Model
     public function subOrders()
     {
         return $this->belongsToMany(SubOrder::class, 'order_contents');
+    }
+
+    public function dropship()
+    {
+        return $this->hasOne(Dropship::class, 'dropship_product_id');
     }
 
 }

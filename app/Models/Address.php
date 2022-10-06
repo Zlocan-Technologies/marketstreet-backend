@@ -12,7 +12,7 @@ class Address extends Model
     use BelongsToUser;
 
     protected $fillable = [
-        'user_id',
+        'order_id',
         'city',
         'state',
         'address'
@@ -22,4 +22,5 @@ class Address extends Model
         'created_at',
         'updated_at',
     ];
+    
 }

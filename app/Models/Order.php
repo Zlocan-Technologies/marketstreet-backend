@@ -31,7 +31,7 @@ class Order extends Model
         'created_at',
     ];
 
-    protected $with = ['subOrders'];
+    protected $with = ['subOrders', 'address'];
     
     protected function updatedAt(): Attribute
     {
@@ -45,5 +45,10 @@ class Order extends Model
     {
         return $this->hasMany(SubOrder::class);
     }
+
+    public function address()
+    {
+        return $this->hasOne(Address::class);
+    } 
 
 }

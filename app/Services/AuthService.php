@@ -5,12 +5,31 @@ namespace App\Services;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Util\CustomResponse;
-use App\Http\Requests\{LoginRequest, VerifyAccount, 
-    ResetPassword, CreateUser, PasswordReset as PassReset};
-use App\Mail\{VerifyAccountMail, ResetPasswordMail};
-use Illuminate\Support\Facades\{DB, Mail, Hash, Http};
-use App\Actions\Fortify\{CreateNewUser, ResetUserPassword};
-use App\Models\{User, PasswordReset};
+use App\Http\Requests\{
+    LoginRequest,
+    VerifyAccount, 
+    ResetPassword, 
+    CreateUser, 
+    PasswordReset as PassReset
+};
+use App\Mail\{
+    VerifyAccountMail, 
+    ResetPasswordMail
+};
+use Illuminate\Support\Facades\{
+    DB, 
+    Mail, 
+    Hash, 
+    Http
+};
+use App\Actions\Fortify\{
+    CreateNewUser, 
+    ResetUserPassword
+};
+use App\Models\{
+    User, 
+    PasswordReset
+};
 
 class AuthService
 {

@@ -4,11 +4,26 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Events\OrderPlaced;
-use App\Util\{CustomResponse, Paystack, Flutterwave, Helper};
-use App\Models\{Transaction, User};
 //use App\Http\Requests\{TransferRequest};
-use Illuminate\Support\Facades\{DB, Mail, Http};
+use Illuminate\Support\Facades\{
+    DB, 
+    Mail, 
+    Http
+};
+use App\Util\{
+    CustomResponse, 
+    Paystack, 
+    Flutterwave, 
+    Helper
+};
+use App\Events\{
+    InvoiceSent,
+    OrderPlaced
+};
+use App\Models\{
+    Transaction, 
+    User
+};
 
 class TransactionService
 {
