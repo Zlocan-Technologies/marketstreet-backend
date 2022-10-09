@@ -4,7 +4,6 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-//use App\Http\Requests\{TransferRequest};
 use Illuminate\Support\Facades\{
     DB, 
     Mail, 
@@ -22,56 +21,61 @@ use App\Events\{
 };
 use App\Models\{
     Transaction, 
-    User
+    User,
+    Order,
+    SubOrder
 };
 
 class TransactionService
 {
-    public function callback(Request $request)
+    public function paystackCallback(Request $request)
     {
         $reference = $request['reference'];
 
         $order = Order::where(['reference' => $reference])->first();
         if (!$order) exit();
-        if ($order->verified) exit();
+        //if ($order->verified) exit();
 
         $payment = new Paystack;
         $paymentData = $payment->getPaymentData($reference);
         $status = $paymentData['data']["status"];
 
-        $order->status = $status;
+        $order->payment_status = $status;
+       // $order->verified = 1;
         $order->save();
 
-        foreach($order->contents as $content):
-            
+        $subOrders = $order->subOrders;
+        foreach($subOrders as $subOrder):
+            OrderPlaced::dispatch($subOrder);
         endforeach;
     }
 
-    public function callbacks(Request $request)
+    public function flutterwaveCallback(Request $request)
     {
         $transactionId = $request['transaction_id'];
         $reference = $request['tx_ref'];
         $status = $request['status'];
-        try{
-            $order = Order::where(['reference' => $reference])->first();
-            if (!$order) exit();
-            if ($status != "successful") exit();
+    
+        $order = Order::where(['reference' => $reference])->first();
+        if (!$order) exit();
+        //if ($order->verified) exit();
 
-            $payment = new Flutterwave;
-            $response = $payment->verifyTransaction($transactionId);
-            if($response['data']["status"] === "successful"):
-                $order->status = "success";
-            else:
-                $order->status = "failed";
-            endif;
-            
-            $order->save();
+        $payment = new Flutterwave;
+        $response = $payment->verifyTransaction($transactionId);
+        
+        if($response['data']["status"] === "successful"):
+            $order->payment_status = "success";
+        else:
+            $order->payment_status = "failed";
+        endif;
+        
+        //$order->verified = 1;
+        $order->save();
 
-            return CustomResponse::success("success", $order);
-        }catch (\Exception $e) {
-            $message = $e->getMessage();
-            return CustomResponse::error($message);
-        }
+        $subOrders = $order->subOrders;
+        foreach($subOrders as $subOrder):
+            OrderPlaced::dispatch($subOrder);
+        endforeach;
     }
 
     public function transfer(TransferRequest $request)

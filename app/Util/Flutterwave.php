@@ -20,7 +20,7 @@ class Flutterwave
 
     public function initializePayment(User $user, array $data)
     {
-        $redirect_url = url("/api/v1/wallet/callback/");
+        $redirect_url = url("/api/v1/callback/flutterwave/");
         $response = Http::acceptJson()
             ->withToken($this->secretKey)
                 ->post($this->baseUrl."payments/", [
@@ -36,7 +36,7 @@ class Flutterwave
                         'user_id' => $user->id
                     ],
                     'customizations' => [
-                        'title' => 'Pied Piper Payments',
+                        'title' => 'MarketStreet Payments',
                         'logo' => 'https://',
                         'description' => ''
                     ]

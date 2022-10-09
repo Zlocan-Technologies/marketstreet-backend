@@ -7,6 +7,7 @@ use App\Http\Controllers\{
     UserController,
     ProductController, 
     OrderController,
+    TransactionController
 };
 
 Route::group(['prefix' => 'v1'], function () {
@@ -24,8 +25,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::group([
         'prefix' => 'callback'
     ], function () {
-        //Route::post("/paystack/", [UserController::class, "transferWebhook"]);
-        //Route::post("/flutterwave/", [UserController::class, "transferWebhook"]);
+        Route::get("/paystack/", [TransactionController::class, "paystackCallback"]);
+        Route::get("/flutterwave/", [TransactionController::class, "flutterwaveCallback"]);
     });
 
     Route::group([

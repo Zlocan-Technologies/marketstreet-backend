@@ -21,6 +21,7 @@ class Order extends Model
         'total',
         'reference',
         'payment_status',
+        'verified',
         'order_status',
         'payment_channel',
         'coupon_code',
@@ -29,9 +30,10 @@ class Order extends Model
 
     protected $hidden = [
         'created_at',
+        'verified'
     ];
 
-    protected $with = ['subOrders', 'address'];
+    protected $with = ['subOrders'];
     
     protected function updatedAt(): Attribute
     {
