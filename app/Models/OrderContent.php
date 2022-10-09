@@ -21,6 +21,8 @@ class OrderContent extends Model
         'updated_at',
     ];
 
+    protected $with = ['product'];
+
     public function subOrder()
     {
         return $this->belongsTo(SubOrder::class);

@@ -112,8 +112,6 @@ class OrderService
                 endif;
                 
                 array_push($array, $product->seller_id);
-
-                OrderPlaced::dispatch($subOrder->fresh());
             endforeach;
         });
        
@@ -169,8 +167,8 @@ class OrderService
         $response = \Cloudinary\Uploader::destroy($explode[0]);
         return $response;*/
         return User::find(1)->subOrders;
-        return Order::find(1)->products;
-        return Order::find(1)->contents;
+        return SubOrder::find(1)->products;
+        return SubOrder::find(1)->contents;
         return Product::find(1)->orders;
     }
 
@@ -234,6 +232,8 @@ class OrderService
         $order = Order::find($request['id']);
         $user = User::find($order->user_id);
         $channel = strtoupper($request['payment_channel']);
+        $order->payment_channel = $channel;
+        $order->save();
         $total = $order->total;
         $reference = $order->reference;
         $url = $this->generatePaymentUrl($user, $channel, $total, $reference);

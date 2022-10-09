@@ -26,6 +26,7 @@ return new class extends Migration
             $table->enum('payment_status', ['pending', 'success', 'failed'])->default('pending');
             $table->enum('order_status', ['pending', 'shipped', 'delivered', 'confirmed', 'paid'])->default('pending');
             $table->enum('payment_channel', ['FLUTTERWAVE', 'PAYSTACK'])->nullable();
+            $table->boolean('verified')->default(0);
             $table->string('coupon_code')->nullable();
             $table->timestamps();
         });

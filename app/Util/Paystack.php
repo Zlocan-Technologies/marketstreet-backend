@@ -38,13 +38,12 @@ class Paystack
         $email, $amount, $reference
     )
     {
-        $callback = url("/api/v1/wallet/callback/");
+        $callback = url("/api/v1/callback/paystack/");
         $response = Http::acceptJson()
             ->withToken($this->secretKey)
                 ->post($this->baseUrl."transaction/initialize", [
                     'email' => $email,
-                    'amount' => $amount * 100,
-                    'reference' => $reference,
+                    'amount' => $amount * 100, 
                     'callback_url' => $callback,
                     'channels' => [
                         'card', 
@@ -52,8 +51,8 @@ class Paystack
                         'ussd', 
                         'qr', 
                         'mobile_money',
-                        'bank_transfer'
-                    ]
+                    ],
+                    'reference' => $reference,
                 ]);
         return $response;
     }
