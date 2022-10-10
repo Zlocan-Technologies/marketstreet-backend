@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\TransactionService;
-use App\Http\Requests\{InitiateDeposit, transferRequest};
 
 
 class TransactionController extends Controller
@@ -18,28 +17,14 @@ class TransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
-    public function initiateDeposit(InitiateDeposit $request)
+    public function paystackCallback(Request $request)
     {
-        return $this->transactionService->initiateDeposit($request);
+        return $this->transactionService->paystackCallback($request);
     }
 
-    public function callback(Request $request)
+    public function flutterwaveCallback(Request $request)
     {
-        return $this->transactionService->callback($request);
+        return $this->transactionService->flutterwaveCallback($request);
     }
 
-    public function transferWebhook(Request $request)
-    {
-        return $this->transactionService->transferWebhook($request);
-    }
-
-    public function transfer(transferRequest $request)
-    {
-        return $this->transactionService->transfer($request);
-    }
-
-    public function escapeWebView(Request $request)
-    {
-        return $this->transactionService->escapeWebView();
-    }
 }

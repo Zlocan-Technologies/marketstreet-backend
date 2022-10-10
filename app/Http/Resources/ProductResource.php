@@ -18,7 +18,7 @@ class ProductResource extends JsonResource
         //return parent::toArray($request);
         return [
             "id" => $this->id,
-            "owner" => $this->owner,
+            "owner" => new UserResource($this->owner),
             "category_id" => $this->category_id,
             "name" => $this->name,
             "brand" => $this->brand,

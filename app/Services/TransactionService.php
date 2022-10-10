@@ -4,85 +4,97 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Resources\WalletResource;
-use App\Util\{CustomResponse, Paystack, Flutterwave, Helper};
-use App\Models\{Transaction, User};
-//use App\Http\Requests\{TransferRequest};
-use Illuminate\Support\Facades\{DB, Mail, Http};
+use Illuminate\Support\Facades\{
+    DB, 
+    Mail, 
+    Http
+};
+use App\Util\{
+    CustomResponse, 
+    Paystack, 
+    Flutterwave, 
+    Helper
+};
+use App\Events\{
+    InvoiceSent,
+    OrderPlaced
+};
+use App\Models\{
+    Transaction, 
+    User,
+    Order,
+    SubOrder
+};
 
 class TransactionService
 {
-    public function callback(Request $request)
+    public function paystackCallback(Request $request)
     {
         $reference = $request['reference'];
 
         $order = Order::where(['reference' => $reference])->first();
         if (!$order) exit();
-        if ($order->verified) exit();
+        //if ($order->verified) exit();
 
         $payment = new Paystack;
         $paymentData = $payment->getPaymentData($reference);
         $status = $paymentData['data']["status"];
 
-        $order->status = $status;
+        $order->payment_status = $status;
+       // $order->verified = 1;
         $order->save();
 
-        foreach($order->contents as $content):
-            
+        $subOrders = $order->subOrders;
+        foreach($subOrders as $subOrder):
+            OrderPlaced::dispatch($subOrder);
         endforeach;
     }
 
-    public function callbacks(Request $request)
+    public function flutterwaveCallback(Request $request)
     {
         $transactionId = $request['transaction_id'];
         $reference = $request['tx_ref'];
         $status = $request['status'];
-        try{
-            $order = Order::where(['reference' => $reference])->first();
-            if (!$order) exit();
-            if ($status != "successful") exit();
+    
+        $order = Order::where(['reference' => $reference])->first();
+        if (!$order) exit();
+        //if ($order->verified) exit();
 
-            $payment = new Flutterwave;
-            $response = $payment->verifyTransaction($transactionId);
-            if($response['data']["status"] === "successful"):
-                $order->status = "success";
-            else:
-                $order->status = "failed";
-            endif;
-            
-            $order->save();
+        $payment = new Flutterwave;
+        $response = $payment->verifyTransaction($transactionId);
+        
+        if($response['data']["status"] === "successful"):
+            $order->payment_status = "success";
+        else:
+            $order->payment_status = "failed";
+        endif;
+        
+        //$order->verified = 1;
+        $order->save();
 
-            return CustomResponse::success("success", $order);
-        }catch (\Exception $e) {
-            $message = $e->getMessage();
-            return CustomResponse::error($message);
-        }
+        $subOrders = $order->subOrders;
+        foreach($subOrders as $subOrder):
+            OrderPlaced::dispatch($subOrder);
+        endforeach;
     }
 
     public function transfer(TransferRequest $request)
     {
         $user = auth()->user();
-        
-        if($wallet->available_balance < $request->amount):
-            $message = "Insufficient Balance";
-            return CustomResponse::error($message, 400);
-        endif;
-
+        $account = $user->bankDetail;
         try{
-            $paystack = new Paystack;
-            $recipient = $paystack->createTransferRecipient(
-                Crypt::decryptString($wallet->account_number),
-                Crypt::decryptString($wallet->account_name),
-                $wallet->bank_code
+            $payment = new Paystack;
+            $recipient = $payment->createTransferRecipient(
+                $account->account_number,
+                $account->account_name,
+                $account->bank_code
             );
 
-            $wallet->available_balance -= $request->amount;
-            $wallet->save();
             $reference = Helper::generateReference($user->id);
             $transaction = Transaction::create([
                 'wallet_id' => $wallet->id,
                 'type' => 'Debit',
-                'amount' => $request->amount,
+                'amount' => $request['amount'],
                 'reference' => $reference,
                 'method'  => 'Bank Transfer'
             ]);
@@ -90,13 +102,12 @@ class TransactionService
             return $payment->sendMoney(
                 [
                     'recipient' => $recipient['data']["recipient_code"],
-                    'amount' => $request->amount * 100,
-                    'source' => "balance",
+                    'amount' => $request['amount'],
                     'reason' => "Workpro Withdrawal Testing thursday",
                     'reference' => $reference
                 ]
             );
-            //return CustomResponse::success($response['message'], $data);
+
         }catch(\Exception $e){
             $message = $e->getMessage();
             return CustomResponse::error($message);

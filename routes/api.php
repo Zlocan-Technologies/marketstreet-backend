@@ -4,9 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     AuthController, 
+    UserController,
     ProductController, 
     OrderController,
-    UserController
+    TransactionController
 };
 
 Route::group(['prefix' => 'v1'], function () {
@@ -24,8 +25,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::group([
         'prefix' => 'callback'
     ], function () {
-        //Route::post("/paystack/", [UserController::class, "transferWebhook"]);
-        //Route::post("/flutterwave/", [UserController::class, "transferWebhook"]);
+        Route::get("/paystack/", [TransactionController::class, "paystackCallback"]);
+        Route::get("/flutterwave/", [TransactionController::class, "flutterwaveCallback"]);
     });
 
     Route::group([
@@ -79,10 +80,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::post("/update/{id}", [ProductController::class, "update"]);
         Route::delete("/{id}", [ProductController::class, "destroy"]);
 
-        Route::get("/{userId}/get-products", [ProductController::class, "getAllUserProducts"]);
+        Route::get("/{userId}/products", [ProductController::class, "getAllUserProducts"]);
     });
 
-    Route::get("/all-products", [ProductController::class, "FetchAllStoreProducts"]);
+    Route::get("/products", [ProductController::class, "FetchAllStoreProducts"]);
+    Route::get("/products/{min}/{max}", [ProductController::class, "FetchProductsByPrice"]);
+    Route::get("/wishlist/", [ProductController::class, "getWishlist"]);
+    Route::post("/wishlist/{id}", [ProductController::class, "addProductToWishlist"]);
 
     Route::group([
         'prefix' => 'order'
@@ -91,12 +95,14 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::get("/buyer/get-all-orders", [OrderController::class, "listOrdersForBuyer"]);
         Route::post("/", [OrderController::class, "order"]);
         Route::post("/send-invoice", [OrderController::class, "sendInvoice"]);
+        Route::post("/invoice-payment", [OrderController::class, "invoicePayment"]);
     });
 
     Route::get("/seller/get-all-orders", [OrderController::class, "listOrdersForSeller"]);
     Route::get("/seller/order/{id}", [OrderController::class, "showOrderSeller"]);
 
     Route::get("/coupon/{code}", [OrderController::class, "fetchCouponData"]);
+
 });
 
 Route::get("/test-order", [OrderController::class, "test"]);

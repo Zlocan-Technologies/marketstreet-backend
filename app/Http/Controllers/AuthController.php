@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Services\AuthService;
 use Illuminate\Http\Request;
-use App\Http\Requests\{LoginRequest, VerifyAccount, 
-    ResetPassword, CreateUser, PasswordReset as PassReset};
+use App\Http\Requests\{
+    LoginRequest, 
+    VerifyAccount, 
+    ResetPassword, 
+    CreateUser, 
+    PasswordReset as PassReset
+};
 
 class AuthController extends Controller
 {

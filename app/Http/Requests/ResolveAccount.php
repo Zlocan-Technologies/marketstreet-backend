@@ -16,8 +16,8 @@ class ResolveAccount extends FormRequest
     public function rules(): array
     {
         return [
-            'account_number' => 'required|numeric|',
-            'bank_code' => 'required|'
+            'account_number' => 'required|numeric|digits_between:10,12',
+            'bank_code' => 'required'
         ];
     }
 

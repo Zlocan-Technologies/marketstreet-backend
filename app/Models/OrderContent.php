@@ -10,9 +10,8 @@ class OrderContent extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_id',
+        'sub_order_id',
         'product_id',
-        //'seller_id',
         'quantity',
         'price',
     ];
@@ -22,9 +21,11 @@ class OrderContent extends Model
         'updated_at',
     ];
 
-    public function order()
+    protected $with = ['product'];
+
+    public function subOrder()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(SubOrder::class);
     }
 
     public function product()

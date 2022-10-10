@@ -3,37 +3,27 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use App\Traits\BelongsToUser;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Order extends Model
+class SubOrder extends Model
 {
     use HasFactory;
-    use BelongsToUser;
 
     protected $fillable = [
-        'user_id',
-        'subtotal',
-        'shipping_cost',
-        'subcharge',
+        'seller_id',
+        'order_id',
+        'order_no',
         'total',
-        'reference',
-        'payment_status',
-        'verified',
         'order_status',
-        'payment_channel',
-        'coupon_code',
-        'order_no'
     ];
 
     protected $hidden = [
         'created_at',
-        'verified'
     ];
 
-    protected $with = ['subOrders'];
+    protected $with = ['contents'];
     
     protected function updatedAt(): Attribute
     {
@@ -43,14 +33,13 @@ class Order extends Model
         );
     }
 
-    public function subOrders()
+    public function contents()
     {
-        return $this->hasMany(SubOrder::class);
+        return $this->hasMany(OrderContent::class);
     }
 
-    public function address()
+    public function products()
     {
-        return $this->hasOne(Address::class);
-    } 
-
+        return $this->belongsToMany(Product::class, 'order_contents');
+    }
 }

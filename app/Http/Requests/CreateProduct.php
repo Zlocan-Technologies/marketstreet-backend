@@ -19,12 +19,11 @@ class CreateProduct extends FormRequest
             'category_id' => ['required', 'integer'],
             'name' => "required|string",
             'brand' => "required|string",
-            'quantity' => 'integer',
+            'stock' => 'integer',
             'price' => ['required', 'numeric'],
             'description' => 'required',
             'shipping_cost' => ['required', 'numeric'],
             'is_negotiable' => 'integer',
-            'id' => 'integer'
         ];
     }
 

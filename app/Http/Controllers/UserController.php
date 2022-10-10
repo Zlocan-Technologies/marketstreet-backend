@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
-use Illuminate\Support\Facades\{DB};
-use App\Models\{User, Role, UserProfile};
-use App\Http\Requests\{SavePhoto, ResolveAccount};
+use Illuminate\Support\Facades\{
+    DB
+};
+use App\Http\Requests\{
+    SavePhoto, 
+    ResolveAccount
+};
+use App\Models\{
+    User, 
+    Role, 
+};
 
 class UserController extends Controller
 {

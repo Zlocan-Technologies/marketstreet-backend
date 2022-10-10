@@ -16,7 +16,7 @@ class ReviewProduct extends FormRequest
     public function rules()
     {
         return [
-            'text' => ['required', 'string'],
+            'text' => 'string',
             'rating' => "required|numeric",
         ];
     }

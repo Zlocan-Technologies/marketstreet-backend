@@ -99,9 +99,13 @@ class User extends Authenticatable
         return $this->hasOne(BankAccount::class);
     }
 
-    public function address()
+    public function subOrders()
     {
-        return $this->hasOne(Address::class);
-    } 
+        return $this->hasMany(SubOrder::class, 'seller_id');
+    }
 
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
 }

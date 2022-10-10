@@ -16,13 +16,15 @@ class CreateOrder extends FormRequest
     public function rules()
     {
         return [
-            /*'subtotal' => [],
-            'shipping_cost' => ['integer'],
-            'subcharge' => [],
-            'total' => [],
-            'reference' => [],
-            'payment_channel' => [],
-            'coupon_code' => isset($request['coupon_code']) ? $request['coupon_code'] : NULL*/
+            /*'subtotal' => 'required|integer',
+            'shipping_cost' => 'required|integer',
+            'subcharge' => 'required|integer',
+            'total' => 'required|integer',
+            'reference' => 'required|string',
+            'payment_channel' => 'string',
+            'cart.id' => 'required|integer',
+            'cart.price' => 'required|integer',
+            'cart.quantity' => 'required|integer'*/
         ];
     }
 

@@ -17,7 +17,6 @@ class VerifyAccount extends FormRequest
     {
         return [
             'email'     => "required|email",
-
             'code'  =>   'required|digits_between:4,4|exists:user_verification',
         ];
     }

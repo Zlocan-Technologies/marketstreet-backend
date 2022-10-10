@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\OrderService;
-use App\Http\Requests\{CreateOrder, CreateInvoice};
+use App\Http\Requests\{
+    CreateOrder, 
+    CreateInvoice
+};
 
 class OrderController extends Controller
 {
@@ -38,6 +41,11 @@ class OrderController extends Controller
     public function sendInvoice(CreateInvoice $request)
     {
         return $this->orderService->sendInvoice($request);
+    }
+
+    public function invoicePayment(Request $request)
+    {
+        return $this->orderService->invoicePayment($request);
     }
 
     public function fetchCouponData($code)
