@@ -42,4 +42,14 @@ class SubOrder extends Model
     {
         return $this->belongsToMany(Product::class, 'order_contents');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
+    }
 }

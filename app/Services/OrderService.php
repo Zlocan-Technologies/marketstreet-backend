@@ -19,22 +19,17 @@ use App\Http\Requests\{
 };
 use Illuminate\Support\Facades\{
     DB,
-    Http, 
-    Crypt, 
-    Hash, 
     Mail
 };
 use App\Models\{
     User, 
-    Product, 
-    Category, 
+    Product,
     Order, 
     SubOrder,
     OrderContent
 };
 use App\Events\{
-    InvoiceSent,
-    OrderPlaced
+    InvoiceSent
 };
 
 class OrderService
@@ -142,6 +137,15 @@ class OrderService
     }
 
     public function listOrdersForBuyer()
+    {
+        $user = auth()->user();
+        $orders = User::find($user->id)->orders;
+        if(!$orders) return CustomResponse::error('No orders found', 404);
+
+        return CustomResponse::success("Orders:", $orders);
+    }
+
+    public function listOrdersForSeller()
     {
         $user = auth()->user();
         $orders = User::find($user->id)->orders;

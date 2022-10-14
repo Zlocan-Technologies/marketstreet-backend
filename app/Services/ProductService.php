@@ -36,6 +36,18 @@ class ProductService
 {
     public function show($id)
     {
+        $validator = Validator::make([
+            'id' => $id
+        ], [
+            'id' => 'required|integer|exists:products, id',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $product = Product::find($id);
         if(!$product) return CustomResponse::error('Product not found', 404);
 
@@ -57,7 +69,6 @@ class ProductService
             'shipping_cost' => $request['shipping_cost'],
             'is_negotiable' => $request['is_negotiable']
         ]);
-
         
         if($request->hasFile('image')):
             $image = $request->file('image');
@@ -149,6 +160,18 @@ class ProductService
 
     public function destroy($id)
     {
+        $validator = Validator::make([
+            'id' => $id
+        ],[
+            'id' => 'required|integer|exists:products, id',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $product = Product::find($id);
         if(!$product) return CustomResponse::error('Product not found', 404);
 
@@ -217,6 +240,18 @@ class ProductService
 
     public function getProducts($categoryId)
     {
+        $validator = Validator::make([
+            'categoryId' => $categoryId
+        ], [
+            'categoryId' => 'required|integer|exists:categories, id',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $category = Category::find($categoryId);
         if(!$category) return CustomResponse::error('Category not found', 404);
 
@@ -232,6 +267,18 @@ class ProductService
 
     public function getAllUserProducts($userId)
     {
+        $validator = Validator::make([
+            'userId' => $userId
+        ], [
+            'userId' => 'required|integer|exists:users, id',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $products = Product::with('category')
         ->without('reviews', 'owner')
         ->where([
@@ -242,6 +289,18 @@ class ProductService
 
     public function addProductToWishlist($id)
     {
+        $validator = Validator::make([
+            'id' => $id
+        ], [
+            'id' => 'required|integer|exists:products, id',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $user = auth()->user();
         $product = Product::find($id);
         if(!$product) return CustomResponse::error('Product not found', 404);
@@ -279,6 +338,20 @@ class ProductService
 
     public function FetchProductsByPrice($min, $max)
     {
+        $validator = Validator::make([
+            'min' => $min,
+            'max' => $max
+        ], [
+            'min' => 'required|integer',
+            'max' => 'required|integer',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $min = (int) $min;
         $max = (int) $max;
     

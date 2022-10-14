@@ -58,16 +58,18 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::get("/bank-detail/{id}", [UserController::class, "getBankDetails"]);
         Route::delete("/bank-detail/{id}", [UserController::class, "deleteBankDetail"]);
         Route::post("/bank-detail/", [UserController::class, "updateBankDetail"]);
-        Route::post("/transfer", [UserController::class, "transfer"]);
-        Route::post("/newsletter", [UserController::class, "newsletter"]);
+        //Route::post("/transfer", [UserController::class, "transfer"]);
+        Route::post("/email-notification", [UserController::class, "emailNotification"]);
+        Route::post("/push-notification/", [UserController::class, "pushNotification"]);
         Route::post("/fcm-token", [UserController::class, "storeFcmToken"]);
+        Route::post("/send-push-notification", [UserController::class, "sendPushNotification"]);
     });
 
     Route::group([
         'prefix' => 'category'
     ], function () {
         Route::get("/", [ProductController::class, "getCategories"]);
-        Route::post("/store", [ProductController::class, "createCategories"]);
+        //Route::post("/store", [ProductController::class, "createCategories"]);
         Route::get("/{categoryId}/products", [ProductController::class, "getProducts"]);
     });
 

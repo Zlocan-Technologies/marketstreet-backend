@@ -4,9 +4,9 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Services\FCMService;
 use App\Http\Requests\{
-    ResolveAccount, 
-    SavePhoto
+    ResolveAccount,
 };
 use App\Http\Resources\BankResource;
 use App\Util\{
@@ -19,11 +19,14 @@ use Illuminate\Support\Facades\{
     Http, 
     Crypt, 
     Hash, 
-    Mail
+    Mail,
+    Validator
 };
 use App\Models\{
     User, 
-    BankAccount
+    BankAccount,
+    EmailNotification,
+    PushNotification
 };
 
 class UserService
@@ -77,8 +80,18 @@ class UserService
         }
     }
 
-    public function updateProfilePhoto(SavePhoto $request)
+    public function updateProfilePhoto(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'photo' => 'required|mimes:jpeg,jpg,png,svg|max:2048'
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $user = auth()->user();
         $photo = $user->photo;
         if($photo):
@@ -105,6 +118,20 @@ class UserService
 
     public function updateProfileData(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'user.firstname' => 'required|string',
+            'user.lastname' => 'required|string',
+            'user.phone' => ['required', 'numeric', 'min:11', 'unique:users,phone'],
+            'profile.address' => ['string'],
+            'profile.state' => ['string']
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $user = auth()->user();
         $user->firstname = $request["user"]["firstname"];
         $user->lastname = $request["user"]["lastname"];
@@ -145,24 +172,70 @@ class UserService
         return CustomResponse::success("Bank Details Deleted", null);
     }
 
-    public function newsletter(Request $request)
+    public function emailNotification(Request $request)
     {
-        DB::table('newsletter')
-        ->where(['email' => auth()->user()->email])
-        ->update([
-            'subscribed' => $request['notify']
+        $validator = Validator::make($request->all(), [
+            'notify' => 'required|integer',
         ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
 
-        if($request['notify'] == 0):
-            $message = 'You have unsubscribed from our newsletter';
-        elseif($request['notify'] == 1):
-            $message = 'You have subscribed for our newsletter';
+        $user = auth()->user();
+        $notify = EmailNotification::find($user->email);
+        $notify->is_subscribed = $request['notify'];
+        $notify->save();
+
+        if($request['notify'] === 0):
+            $message = 'You have unsubscribed from our email notifications';
+        elseif($request['notify'] === 1):
+            $message = 'You have subscribed for our email notifications';
+        endif;
+        return CustomResponse::success($message, null);
+    } 
+
+    public function pushNotification(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'notify' => 'required|integer',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
+        $user = auth()->user();
+        $notify = PushNotification::find($user->id);
+        $notify->is_subscribed = $request['notify'];
+        $notify->save();
+
+        if($request['notify'] === 0):
+            $message = 'You have unsubscribed from our push notifications';
+        elseif($request['notify'] === 1):
+            $message = 'You have subscribed for our push notifications';
         endif;
         return CustomResponse::success($message, null);
     } 
 
     public function getUserData($userId)
     {
+        $validator = Validator::make([
+            'userId' => $userId,
+        ], [
+            'userId' => 'required|integer|exists:users, id',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $user = User::find($userId);
         try{
             //$user = new UserResource($user);
@@ -175,6 +248,16 @@ class UserService
 
     public function storeFcmToken(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|string',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $user = auth()->user();
         try{
             $user->fcm_token = $request['token'];
@@ -188,5 +271,34 @@ class UserService
         return CustomResponse::success($message, null);
     }
 
+    public function sendPushNotification(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'receiver' => 'required|integer',
+            'title' => 'required|string',
+            'body' => 'required|string',
+            'route' => 'required|string'
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
+        $receiver = User::find($request['receiver']);
+        $notify = PushNotification::find($receiver->id);
+        if($notify):
+            FCMService::send(
+                $receiver->fcm_token,
+                [
+                    'title' => $request['title'],
+                    'body' => $request['body'],
+                    'route' => $request['route']
+                ]
+            );
+            return CustomResponse::success('notification has been sent', null);
+        endif;
+    }
 
 }

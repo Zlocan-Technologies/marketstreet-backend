@@ -46,6 +46,13 @@ class TransactionService
 
         $subOrders = $order->subOrders;
         foreach($subOrders as $subOrder):
+            $owner = $subOrder->user;
+            $profile = $owner->profile;
+            $total = $subOrder->total;
+            
+            $profile->orders += 1;
+            $profile->sales += $total;
+            $profile->save();
             OrderPlaced::dispatch($subOrder);
         endforeach;
     }
@@ -74,11 +81,18 @@ class TransactionService
 
         $subOrders = $order->subOrders;
         foreach($subOrders as $subOrder):
+            $owner = $subOrder->user;
+            $profile = $owner->profile;
+            $total = $subOrder->total;
+            
+            $profile->orders += 1;
+            $profile->sales += $total;
+            $profile->save();
             OrderPlaced::dispatch($subOrder);
         endforeach;
     }
 
-    public function transfer(TransferRequest $request)
+    public function paystackTransfer(TransferRequest $request)
     {
         $user = auth()->user();
         $account = $user->bankDetail;
