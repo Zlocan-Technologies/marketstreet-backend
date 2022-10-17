@@ -82,7 +82,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::post("/review/{id}", [ProductController::class, "review"]);
         Route::post("/update/{id}", [ProductController::class, "update"]);
         Route::delete("/{id}", [ProductController::class, "destroy"]);
-        Route::post("/dropship", [ProductController::class, "dropship"]);
+        Route::post("{id}/dropship", [ProductController::class, "dropship"]);
 
         Route::get("/{userId}/products", [ProductController::class, "getAllUserProducts"]);
     });

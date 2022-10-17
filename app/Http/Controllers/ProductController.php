@@ -28,9 +28,9 @@ class ProductController extends Controller
         return $this->productService->store($request);
     }
 
-    public function dropship(Request $request)
+    public function dropship(Request $request, $id)
     {
-        return $this->productService->dropship($request);
+        return $this->productService->dropship($request, $id);
     }
 
     public function update(CreateProduct $request, $id)

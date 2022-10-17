@@ -315,7 +315,20 @@ class UserService
 
     public function fetchReports($userId)
     {
-        $user = auth()->user();
+        $validator = Validator::make([
+            'userId' => $userId,
+        ], [
+            'userId' => 'required|integer',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
+        //$user = auth()->user();
+        $user = User::find($userId);
         $profile = $user->profile->makeVisible([
             'orders',
             'sales',

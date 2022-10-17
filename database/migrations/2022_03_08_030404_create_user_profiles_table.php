@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('orders')->default(0);
             $table->integer('sales')->default(0);
             $table->double('rating')->default(0);
-            $table->json('customers')->nullable();
+            $table->integer('customers')->default(0);
             $table->integer('reviews')->default(0);
             $table->timestamps();
         });

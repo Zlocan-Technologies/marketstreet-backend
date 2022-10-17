@@ -8,6 +8,7 @@
         "php": "^8.0.2",
         "beyondcode/laravel-websockets": "^1.13",
         "cloudinary/cloudinary_php": "^1",
+        "doctrine/dbal": "^3.4",
         "guzzlehttp/guzzle": "^7.4",
         "laravel/fortify": "^1.13",
         "laravel/framework": "^9.2",

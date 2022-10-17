@@ -91,9 +91,20 @@ class ProductService
         return CustomResponse::success($message, $product);
     }
 
-    public function dropship(Request $request)
+    public function dropship(Request $request, $id)
     {
-        $product = Product::find($request['id']);
+        $validator = Validator::make($request->all(), [
+            'percent' => 'required|numeric',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
+        $product = Product::find($id);
+        if(!$product) return CustomResponse::error('Product not found', 404);
         $percent = $request['percent'];
         $price = ($percent / 100) * ($product->price);
         $price += $product->price;

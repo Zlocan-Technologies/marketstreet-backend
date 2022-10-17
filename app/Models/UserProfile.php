@@ -32,7 +32,7 @@ class UserProfile extends Model
         'sales',
         'customers',
         'reviews',
-        'customers_count'
+        'customers_count',
     ];
 
     protected $appends = ['customers_count'];

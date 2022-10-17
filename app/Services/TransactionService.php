@@ -52,6 +52,15 @@ class TransactionService
             
             $profile->orders += 1;
             $profile->sales += $total;
+            $customers = $profile->customers;
+            if(is_array($customers)):
+                if(!in_array($order->user_id, $customers)):
+                    array_push($customers, $order->user_id);
+                endif;
+            else:
+                $customers = [$order->user_id];
+            endif;
+            $profile->customers = $customers;
             $profile->save();
             OrderPlaced::dispatch($subOrder);
         endforeach;
@@ -87,6 +96,15 @@ class TransactionService
             
             $profile->orders += 1;
             $profile->sales += $total;
+            $customers = $profile->customers;
+            if(is_array($customers)):
+                if(!in_array($order->user_id, $customers)):
+                    array_push($customers, $order->user_id);
+                endif;
+            else:
+                $customers = [$order->user_id];
+            endif;
+            $profile->customers = $customers;
             $profile->save();
             OrderPlaced::dispatch($subOrder);
         endforeach;
