@@ -47,6 +47,11 @@ class User extends Authenticatable
 
     protected $with = ['profile', 'bankDetail'];
 
+    protected $appends = [
+        'email_notification', 
+        'push_notification'
+    ];
+
     protected function firstname(): Attribute
     {
         return Attribute::make(
@@ -108,4 +113,25 @@ class User extends Authenticatable
     {
         return $this->hasMany(Wishlist::class);
     }
+
+    public function getEmailNotificationAttribute()
+    {
+        $notify = EmailNotification::find($this->email)->pluck('is_subscribed')[0];
+        if($notify === 0):
+            return false;
+        else:
+            return true;
+        endif;
+    }
+
+    public function getPushNotificationAttribute()
+    {
+        $notify = PushNotification::find($this->id)->pluck('is_subscribed')[0];
+        if($notify === 0):
+            return false;
+        else:
+            return true;
+        endif;
+    }
+
 }

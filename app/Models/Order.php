@@ -33,7 +33,7 @@ class Order extends Model
         'verified'
     ];
 
-    protected $with = ['subOrders'];
+    protected $with = ['subOrders', 'address'];
     
     protected function updatedAt(): Attribute
     {
@@ -50,7 +50,7 @@ class Order extends Model
 
     public function address()
     {
-        return $this->hasOne(Address::class);
+        return $this->hasOne(Address::class, 'order_id');
     } 
 
 }

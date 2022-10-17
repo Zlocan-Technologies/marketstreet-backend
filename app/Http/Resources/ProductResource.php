@@ -3,7 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Category;
+use App\Models\Product;
 
 class ProductResource extends JsonResource
 {
@@ -19,7 +19,6 @@ class ProductResource extends JsonResource
         return [
             "id" => $this->id,
             "owner" => new UserResource($this->owner),
-            "category_id" => $this->category_id,
             "name" => $this->name,
             "brand" => $this->brand,
             "quantity" => $this->quantity,
@@ -29,7 +28,16 @@ class ProductResource extends JsonResource
             "is_negotiable" => $this->is_negotiable,
             "images" => $this->images->pluck('url'),
             "reviews" => $this->reviews,
-            "similar" => Category::find($this->category_id)->products,
+            "similar" => Product::without('owner', 'reviews')
+            ->where([
+                'category_id' => $this->category_id,
+                ['brand', 'LIKE', '%'.$this->brand.'%'],
+                ['id', '!=', $this->id]
+            ])->orWhere([
+                'category_id' => $this->category_id,
+                ['description', 'LIKE', '%'.$this->description.'%'],
+                ['id', '!=', $this->id]
+            ])->get()
         ];
     }
 }

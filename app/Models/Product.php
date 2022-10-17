@@ -29,7 +29,8 @@ class Product extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'is_active'
+        'is_active',
+        'category_id'
     ];
 
     protected $with = ['reviews', 'images', 'owner'];

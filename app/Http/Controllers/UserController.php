@@ -92,5 +92,10 @@ class UserController extends Controller
     {
         return $this->userService->sendPushNotification($request);
     }
+
+    public function fetchReports($userId)
+    {
+        return $this->userService->fetchReports($userId);
+    }
     
 }

@@ -165,6 +165,18 @@ class UserService
 
     public function deleteBankDetail($id)
     {
+        $validator = Validator::make([
+            'id' => $id,
+        ], [
+            'id' => 'required|integer',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $account = BankAccount::where(['id' => $id])->first();
         if(!$account) return CustomResponse::error('Account not found', 404);
 
@@ -189,9 +201,9 @@ class UserService
         $notify->is_subscribed = $request['notify'];
         $notify->save();
 
-        if($request['notify'] === 0):
+        if((int)$request['notify'] === 0):
             $message = 'You have unsubscribed from our email notifications';
-        elseif($request['notify'] === 1):
+        elseif((int)$request['notify'] === 1):
             $message = 'You have subscribed for our email notifications';
         endif;
         return CustomResponse::success($message, null);
@@ -214,9 +226,9 @@ class UserService
         $notify->is_subscribed = $request['notify'];
         $notify->save();
 
-        if($request['notify'] === 0):
+        if((int)$request['notify'] === 0):
             $message = 'You have unsubscribed from our push notifications';
-        elseif($request['notify'] === 1):
+        elseif((int)$request['notify'] === 1):
             $message = 'You have subscribed for our push notifications';
         endif;
         return CustomResponse::success($message, null);
@@ -227,7 +239,7 @@ class UserService
         $validator = Validator::make([
             'userId' => $userId,
         ], [
-            'userId' => 'required|integer|exists:users, id',
+            'userId' => 'required|integer',
         ]);
         if($validator->fails()):
             return response([
@@ -236,8 +248,8 @@ class UserService
             ], 422);
         endif;
 
-        $user = User::find($userId);
         try{
+            $user = User::find($userId);
             //$user = new UserResource($user);
             return CustomResponse::success("successful", $user);
         }catch(\Exception $e){
@@ -299,6 +311,25 @@ class UserService
             );
             return CustomResponse::success('notification has been sent', null);
         endif;
+    }
+
+    public function fetchReports($userId)
+    {
+        $user = auth()->user();
+        $profile = $user->profile->makeVisible([
+            'orders',
+            'sales',
+            'customers',
+            'reviews',
+            'customers_count'
+        ]);
+        $report = [
+            'orders' => $profile->orders,
+            'sales' => $profile->sales,
+            "customers" => $profile->customers_count,
+            "reviews" => $profile->reviews
+        ];
+        return CustomResponse::success("Report:", $report);
     }
 
 }

@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\{
     DB, 
     Http, 
     Crypt, 
-    Hash, 
+    Hash,
+    Validator, 
     Mail
 };
 use App\Util\{
@@ -28,7 +29,8 @@ use App\Models\{
     Order, 
     Review, 
     ProductImage,
-    Wishlist
+    Wishlist,
+    Dropship
 };
 
 
@@ -39,7 +41,7 @@ class ProductService
         $validator = Validator::make([
             'id' => $id
         ], [
-            'id' => 'required|integer|exists:products, id',
+            'id' => 'required|integer',
         ]);
         if($validator->fails()):
             return response([
@@ -89,33 +91,39 @@ class ProductService
         return CustomResponse::success($message, $product);
     }
 
-    public function dropship(CreateProduct $request)
+    public function dropship(Request $request)
     {
-        $product = Product::create([
+        $product = Product::find($request['id']);
+        $percent = $request['percent'];
+        $price = ($percent / 100) * ($product->price);
+        $price += $product->price;
+        
+        $dropship = $product->replicate()->fill([
             'seller_id' => auth()->user()->id,
-            'category_id' => $request['category_id'],
-            'name' => $request['name'],
-            'brand' => $request['brand'],
-            'stock' => isset($request['quantity']) ? $request['quantity'] : NULL,
-            'price' => $request['price'],
-            'description' => $request['description'],
-            'shipping_cost' => $request['shipping_cost'],
-            'is_negotiable' => $request['is_negotiable']
+            'price' => $price,
+            'is_negotiable' => 0,
+            'is_dropshipped' => 1
         ]);
-
+        $dropship->save();
         $images = $product->images()->pluck('url');
         foreach($images as $url):
             ProductImage::create([
                 'url' => $url,
-                'product_id' => $product->id
+                'product_id' => $dropship->id
             ]);
         endforeach;
 
-        $message = "Product has been created";
-        $product = Product::without('reviews', 'owner')->where([
-            'id' => $product->id
+        $product->has_been_dropshipped = 1;
+        $product->save();
+        Dropship::create([
+            'original_product_id' => $product->id,
+            'dropship_product_id' => $dropship->id
+        ]);
+        $message = "Product has been dropshipped";
+        $dropship = Product::without('reviews', 'owner')->where([
+            'id' => $dropship->id
         ])->first();
-        return CustomResponse::success($message, $product);
+        return CustomResponse::success($message, $dropship);
     }
 
     public function update(CreateProduct $request, $id)
@@ -163,7 +171,7 @@ class ProductService
         $validator = Validator::make([
             'id' => $id
         ],[
-            'id' => 'required|integer|exists:products, id',
+            'id' => 'required|integer',
         ]);
         if($validator->fails()):
             return response([
@@ -243,7 +251,7 @@ class ProductService
         $validator = Validator::make([
             'categoryId' => $categoryId
         ], [
-            'categoryId' => 'required|integer|exists:categories, id',
+            'categoryId' => 'required|integer',
         ]);
         if($validator->fails()):
             return response([
@@ -261,7 +269,10 @@ class ProductService
 
     public function FetchAllStoreProducts()
     {
-        $products = Product::without('reviews', 'owner')->get();
+        $products = Product::with('category')
+        ->without('reviews', 'owner')
+        ->get();
+        //->paginate($perPage = 15, ['*'], $pageName = 'page');
         return CustomResponse::success("Products:", $products);
     }
 
@@ -270,7 +281,7 @@ class ProductService
         $validator = Validator::make([
             'userId' => $userId
         ], [
-            'userId' => 'required|integer|exists:users, id',
+            'userId' => 'required|integer',
         ]);
         if($validator->fails()):
             return response([
@@ -292,7 +303,7 @@ class ProductService
         $validator = Validator::make([
             'id' => $id
         ], [
-            'id' => 'required|integer|exists:products, id',
+            'id' => 'required|integer',
         ]);
         if($validator->fails()):
             return response([
@@ -356,6 +367,7 @@ class ProductService
         $max = (int) $max;
     
         $products = Product::without('reviews', 'owner')
+        ->with('category')
         ->whereBetween('price', [$min, $max])
         ->get();
 

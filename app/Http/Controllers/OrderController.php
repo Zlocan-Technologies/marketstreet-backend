@@ -23,9 +23,14 @@ class OrderController extends Controller
         return $this->orderService->order($request);
     }
 
-    public function listOrdersForBuyer()
+    public function listBuyerOrders()
     {
-        return $this->orderService->listOrdersForBuyer();
+        return $this->orderService->listBuyerOrders();
+    }
+
+    public function listSellerOrders()
+    {
+        return $this->orderService->listSellerOrders();
     }
 
     public function show($id)

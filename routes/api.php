@@ -63,6 +63,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::post("/push-notification/", [UserController::class, "pushNotification"]);
         Route::post("/fcm-token", [UserController::class, "storeFcmToken"]);
         Route::post("/send-push-notification", [UserController::class, "sendPushNotification"]);
+        Route::get("/{userId}/reports", [UserController::class, "fetchReports"]);
     });
 
     Route::group([
@@ -81,6 +82,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
         Route::post("/review/{id}", [ProductController::class, "review"]);
         Route::post("/update/{id}", [ProductController::class, "update"]);
         Route::delete("/{id}", [ProductController::class, "destroy"]);
+        Route::post("/dropship", [ProductController::class, "dropship"]);
 
         Route::get("/{userId}/products", [ProductController::class, "getAllUserProducts"]);
     });
@@ -93,13 +95,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum']],function(){
     Route::group([
         'prefix' => 'order'
     ], function () {
-        Route::get("/{id}", [OrderController::class, "show"]);
-        Route::get("/buyer/get-all-orders", [OrderController::class, "listOrdersForBuyer"]);
         Route::post("/", [OrderController::class, "order"]);
         Route::post("/send-invoice", [OrderController::class, "sendInvoice"]);
         Route::post("/invoice-payment", [OrderController::class, "invoicePayment"]);
     });
 
+    Route::get("/buyer/get-all-orders", [OrderController::class, "listOrdersForBuyer"]);
+    Route::get("/{id}", [OrderController::class, "show"]);
     Route::get("/seller/get-all-orders", [OrderController::class, "listOrdersForSeller"]);
     Route::get("/seller/order/{id}", [OrderController::class, "showOrderSeller"]);
 

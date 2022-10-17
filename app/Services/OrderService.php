@@ -19,13 +19,15 @@ use App\Http\Requests\{
 };
 use Illuminate\Support\Facades\{
     DB,
-    Mail
+    Mail,
+    Validator
 };
 use App\Models\{
     User, 
     Product,
     Order, 
     SubOrder,
+    Address,
     OrderContent
 };
 use App\Events\{
@@ -108,6 +110,12 @@ class OrderService
                 
                 array_push($array, $product->seller_id);
             endforeach;
+            Address::create([
+                'order_id' => $order->id,
+                'city' => $request["address"]['city'],
+                'state' => $request["address"]['state'],
+                'street' => $request["address"]['street']
+            ]);
         });
        
         return CustomResponse::success("Payment Link:", $url);
@@ -136,7 +144,7 @@ class OrderService
         endif;
     }
 
-    public function listOrdersForBuyer()
+    public function listBuyerOrders()
     {
         $user = auth()->user();
         $orders = User::find($user->id)->orders;
@@ -145,10 +153,10 @@ class OrderService
         return CustomResponse::success("Orders:", $orders);
     }
 
-    public function listOrdersForSeller()
+    public function listSellerOrders()
     {
         $user = auth()->user();
-        $orders = User::find($user->id)->orders;
+        $orders = User::find($user->id)->subOrders;
         if(!$orders) return CustomResponse::error('No orders found', 404);
 
         return CustomResponse::success("Orders:", $orders);
@@ -233,11 +241,31 @@ class OrderService
 
     public function invoicePayment(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer',
+            'payment_channel' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'street' => 'required|string',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $order = Order::find($request['id']);
         $user = User::find($order->user_id);
         $channel = strtoupper($request['payment_channel']);
         $order->payment_channel = $channel;
         $order->save();
+        Address::create([
+            'order_id' => $order->id,
+            'city' => $request['city'],
+            'state' => $request['state'],
+            'street' => $request['street']
+        ]);
         $total = $order->total;
         $reference = $order->reference;
         $url = $this->generatePaymentUrl($user, $channel, $total, $reference);
