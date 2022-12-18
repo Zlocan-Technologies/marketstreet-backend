@@ -4,11 +4,7 @@ namespace App\Actions\Fortify;
 
 use Carbon\Carbon;
 use App\Mail\VerifyAccountMail;
-use App\Models\{
-    User,
-    EmailNotification,
-    PushNotification
-};
+use App\Models\{User};
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 use Illuminate\Support\Facades\{DB, Mail};
@@ -46,14 +42,11 @@ class CreateNewUser implements CreatesNewUsers
                         'expiry_time' => Carbon::now()->addMinutes(6)
                     ]);
 
-                    EmailNotification::create([
+                    DB::table('newsletter')
+                    ->insert([
                         'email' => $user->email
                     ]);
 
-                    PushNotification::create([
-                        'user_id' => $user->id
-                    ]);
-                    
                     /*Mail::to($user->email)
                         ->send(new VerifyAccountMail($user, $code));*/
                 //endif;

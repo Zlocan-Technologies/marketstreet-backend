@@ -4,5 +4,5 @@
 // config/fcm.php
 
 return [
-    'token' => "AAAAjYylNxQ:APA91bEr_TkUGPfA3Rp3K78-0pVaxcU5bTOdORsxqm9-XBG4A7XusZ3gfuN011u5zgNpeXuGx4ARe8T_M4lpTEQehYehXdX_aDcWYWfFrGbH6XvADshIcGzQo5Fw50WOnY_MtXrgU5li",
+    'token' => "AAAAGsy_DcY:APA91bGRTmJubVawOOX-RmBSYQvlNeImAGpZC3rHfKD0Z6KTBtetMePL-ipxhyqsLdivUuyzWAmzy6eJ_71mDpSv_QTd6_qSiG6lqEJNCz22M6aw-_bMERHVaUE_g92R1YOG88-2842B",
 ];

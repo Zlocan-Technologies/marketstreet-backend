@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\{
     DB
 };
 use App\Http\Requests\{
+    SavePhoto, 
     ResolveAccount
 };
 use App\Models\{
@@ -48,7 +49,7 @@ class UserController extends Controller
         return $this->userService->fetchBanks();
     }
 
-    public function updateProfilePhoto(Request $request)
+    public function updateProfilePhoto(SavePhoto $request)
     {
         return $this->userService->updateProfilePhoto($request);
     }
@@ -68,14 +69,9 @@ class UserController extends Controller
         return $this->userService->deleteBankDetail($id);
     }
 
-    public function emailNotification(Request $request)
+    public function newsletter(Request $request)
     {
-        return $this->userService->emailNotification($request);
-    }
-
-    public function pushNotification(Request $request)
-    {
-        return $this->userService->pushNotification($request);
+        return $this->userService->newsletter($request);
     }
 
     public function getUserData($userId)
@@ -86,21 +82,6 @@ class UserController extends Controller
     public function storeFcmToken(Request $request)
     {
         return $this->userService->storeFcmToken($request);
-    }
-
-    public function sendPushNotification(Request $request)
-    {
-        return $this->userService->sendPushNotification($request);
-    }
-
-    public function fetchReports($userId)
-    {
-        return $this->userService->fetchReports($userId);
-    }
-
-    public function fetchStates()
-    {
-        return $this->userService->fetchStates();
     }
     
 }

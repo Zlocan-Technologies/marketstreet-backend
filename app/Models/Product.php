@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $fillable = [
         'product_id',
@@ -25,17 +23,13 @@ class Product extends Model
         'is_negotiable',
         'is_active',
         'is_dropshipped',
-        'old_price',
-        'is_brand_new',
         'has_been_dropshipped'
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        'deleted_at',
-        'is_active',
-        'category_id'
+        'is_active'
     ];
 
     protected $with = ['reviews', 'images', 'owner'];

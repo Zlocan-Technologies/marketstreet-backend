@@ -17,7 +17,9 @@ class Paystack
 
     public function setKey()
     {
-        $this->secretKey = env('PAYSTACK_SECRET', '');
+        // $this->secretKey = env('PAYSTACK_SECRET', '');
+        $this->secretKey = config('admin.paystack_secret_key');
+
     }
 
     public function setBaseUrl()
