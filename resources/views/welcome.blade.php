@@ -248,7 +248,7 @@
 				<!-- Featured Block -->
 				<div class="feature-block col-lg-4 col-md-4 col-dm-12">
 					<div class="inner-box wow fadeInLeft" data-wow-delay="100ms" data-wow-duration="1500ms">
-						<a href="business.html" class="overlay-link"></a>
+						<a href="#" class="overlay-link"></a>
 						<div class="icon-box">
 							<span class="icon flaticon-smartphone"></span>
 						</div>
@@ -260,7 +260,7 @@
 				<!-- Featured Block -->
 				<div class="feature-block col-lg-4 col-md-4 col-dm-12">
 					<div class="inner-box wow fadeInLeft" data-wow-delay="100ms" data-wow-duration="1500ms">
-						<a href="business.html" class="overlay-link"></a>
+						<a href="#" class="overlay-link"></a>
 						<div class="icon-box">
 							<span class="icon flaticon-data"></span>
 						</div>
@@ -271,7 +271,7 @@
 				<!-- Featured Block -->
 				<div class="feature-block col-lg-4 col-md-4 col-dm-12">
 					<div class="inner-box wow fadeInLeft" data-wow-delay="200ms" data-wow-duration="1500ms">
-						<a href="business.html" class="overlay-link"></a>
+						<a href="#" class="overlay-link"></a>
 						<div class="icon-box">
 							<span class="icon flaticon-technical-support"></span>
 						</div>
@@ -349,13 +349,13 @@
 				<!-- Content Column -->
 				<div class="content-column col-lg-5 col-md-12 col-sm-12">
 					<div class="inner-column">
-						<h2>All all your products <br> to your E-store</h2>
+						<h2>Upload products <br> to your E-store</h2>
 						<div class="text">Upload and edit products to be sold under different categories</div>
-						<!-- <ul class="email-list">
+						<ul class="email-list">
 							<li><span class="icon flaticon-organization"></span>Connect with new people</li>
 							<li><span class="icon flaticon-increase-1"></span>Increase chance to engage</li>
 							<li><span class="icon flaticon-server"></span>Unlimited storage <i>PRO</i></li>
-						</ul> -->
+						</ul>
 					</div>
 				</div>
 				
