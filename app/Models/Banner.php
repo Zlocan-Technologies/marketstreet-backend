@@ -9,15 +9,9 @@ class Banner extends Model
 {
     use HasFactory;
 
-    //protected $primaryKey = 'name';
 
-    protected $fillable = [
+    protected $fillable = [ 
         'image',
+        'display_status'
     ];
-
-    protected $hidden = [
-        'created_at',
-        'updated_at'
-    ];
-
 }

@@ -9,24 +9,18 @@ use Illuminate\Database\Eloquent\Model;
 class Address extends Model
 {
     use HasFactory;
-
-    protected $table = 'addresses';
+    use BelongsToUser;
 
     protected $fillable = [
         'order_id',
         'city',
         'state',
-        'street'
+        'address'
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
     ];
-
-    public function order()
-    {
-        return $this->belongsTo(Order::class, 'order_id');
-    }
     
 }

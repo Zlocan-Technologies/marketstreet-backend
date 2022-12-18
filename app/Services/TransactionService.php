@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Services\FCMService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
@@ -31,8 +30,6 @@ class TransactionService
 {
     public function paystackCallback(Request $request)
     {
-        
-                
         $reference = $request['reference'];
 
         $order = Order::where(['reference' => $reference])->first();
@@ -46,45 +43,11 @@ class TransactionService
         $order->payment_status = $status;
        // $order->verified = 1;
         $order->save();
-        
-        $user = auth()->user();
-        
-         FCMService::send(
-                    $user->fcm_token,
-                    [
-                        'title' => 'Payment Received',
-                        'body' => 'Hi '.$user->firstname.', your payment has been confirmed and your order is enroute. Thank you for using Peddle',
-                        'route' => '/notifications'
-                    ]
-                );
 
         $subOrders = $order->subOrders;
         foreach($subOrders as $subOrder):
-            $products = $subOrder->products;
-            foreach($products as $product):
-                $product->sales += 1;
-                $product->save();
-            endforeach;
-            $owner = $subOrder->user;
-            $profile = $owner->profile;
-            $total = $subOrder->total;
-            
-            $profile->orders += 1;
-            $profile->sales += $total;
-            $customers = $profile->customers;
-            if(is_array($customers)):
-                if(!in_array($order->user_id, $customers)):
-                    array_push($customers, $order->user_id);
-                endif;
-            else:
-                $customers = [$order->user_id];
-            endif;
-            $profile->customers = $customers;
-            $profile->save();
             OrderPlaced::dispatch($subOrder);
         endforeach;
-        
-        
     }
 
     public function flutterwaveCallback(Request $request)
@@ -102,18 +65,6 @@ class TransactionService
         
         if($response['data']["status"] === "successful"):
             $order->payment_status = "success";
-            
-            $user = auth()->user();
-        
-            FCMService::send(
-                    $user->fcm_token,
-                    [
-                        'title' => 'Payment Received',
-                        'body' => 'Hi '.$user->firstname.', your payment has been confirmed and your order is enroute. Thank you for using Peddle',
-                        'route' => '/notifications'
-                    ]
-                );
-                
         else:
             $order->payment_status = "failed";
         endif;
@@ -123,34 +74,11 @@ class TransactionService
 
         $subOrders = $order->subOrders;
         foreach($subOrders as $subOrder):
-            $products = $subOrder->products;
-            foreach($products as $product):
-                $product->sales += 1;
-                $product->save();
-            endforeach;
-            $owner = $subOrder->user;
-            $profile = $owner->profile;
-            $total = $subOrder->total;
-            
-            $profile->orders += 1;
-            $profile->sales += $total;
-            $customers = $profile->customers;
-            if(is_array($customers)):
-                if(!in_array($order->user_id, $customers)):
-                    array_push($customers, $order->user_id);
-                endif;
-            else:
-                $customers = [$order->user_id];
-            endif;
-            $profile->customers = $customers;
-            $profile->save();
             OrderPlaced::dispatch($subOrder);
         endforeach;
-        
-        
     }
 
-    public function paystackTransfer(TransferRequest $request)
+    public function transfer(TransferRequest $request)
     {
         $user = auth()->user();
         $account = $user->bankDetail;

@@ -23,24 +23,19 @@ class OrderController extends Controller
         return $this->orderService->order($request);
     }
 
-    public function listBuyerOrders($id)
+    public function listOrdersForBuyer()
     {
-        return $this->orderService->listBuyerOrders($id);
+        return $this->orderService->listOrdersForBuyer();
     }
 
-    public function listSellerOrders($id)
+    public function show($id)
     {
-        return $this->orderService->listSellerOrders($id);
+        return $this->orderService->show($id);
     }
 
-    public function fetchBuyerOrderData($orderId)
+    public function test()
     {
-        return $this->orderService->fetchBuyerOrderData($orderId);
-    }
-
-    public function fetchSellerOrderData($orderId)
-    {
-        return $this->orderService->fetchSellerOrderData($orderId);
+        return $this->orderService->test();
     }
 
     public function sendInvoice(CreateInvoice $request)

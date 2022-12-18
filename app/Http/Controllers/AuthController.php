@@ -20,21 +20,6 @@ class AuthController extends Controller
     {
         $this->authService = $authService;
     }
-    
-    public function sendcode(Request $request)
-    {
-        return $this->authService->sendverificationcode($request);
-    }
-    
-    public function verifyUser(VerifyAccount $request)
-    {
-        return $this->authService->verifyUser($request);
-    }
-    
-    public function saveFCMToken(Request $request)
-    {
-        return $this->authService->saveFCMToken($request);
-    }
 
     public function register(CreateUser $request)
     {

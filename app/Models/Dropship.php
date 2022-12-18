@@ -11,8 +11,7 @@ class Dropship extends Model
 
     protected $fillable = [
         'original_product_id',
-        'dropship_product_id',
-        'seller_id'
+        'dropship_product_id'
     ];
 
     protected $hidden = [
