@@ -20,20 +20,15 @@ use Illuminate\Support\Facades\{
     DB, 
     Mail, 
     Hash, 
-    Http,
-    Notification
+    Http
 };
-
-use App\Notifications\AdminUserNotification;
-
 use App\Actions\Fortify\{
     CreateNewUser, 
     ResetUserPassword
 };
 use App\Models\{
     User, 
-    PasswordReset,
-    Admin
+    PasswordReset
 };
 
 class AuthService
@@ -42,22 +37,15 @@ class AuthService
     {
         try{
             $user = User::where("email", $request->email)->first();
-            //return error if user account is blocked
-            // if($user->isBlocked){
-            //     return CustomResponse::error('Your account has been blocked!');
-            // }
-
             if(!$user || !password_verify($request->password, $user->password)):
                 $message = "Wrong credentials";
                 return CustomResponse::error($message, 400);
             elseif(!$user->email_verified_at):
                 $message = "Email address not verified, please verify your email before you can login";
                 return CustomResponse::error($message, 401);
-            elseif($user->isBlocked):
-                return CustomResponse::error('Your account has been blocked!');
             endif;
             
-            $token = $user->createToken("MarketStreet")->plainTextToken;
+            $token = $user->createToken("Peddle")->plainTextToken;
             $user->token = $token;
             $message = 'Login successfully';
             return CustomResponse::success($message, $user);
@@ -75,15 +63,105 @@ class AuthService
 
             /*$token = $user->createToken("MarketStreet")->plainTextToken;
             $user->token = $token;*/
+            
+            $verification_code = mt_rand(1000, 9999);
+            
+            $check = DB::table('user_verification')->where(
+                'email',$user->email)->first();
+            
+            if($check):
+                DB::table('user_verification')->where(
+                'email',$user->email)
+                ->update([
+                    'email' => $user->email, 
+                    'code' => $verification_code, 
+                    'expiry_time' => Carbon::now()->addMinutes(6)
+                ]);
+            else:
+                DB::table('user_verification')
+                ->insert([
+                    'email' => $user->email, 
+                    'code' => $verification_code, 
+                    'expiry_time' => Carbon::now()->addMinutes(6)
+                ]);
+            endif;
+            
+            
+            Mail::to($user->email)
+                ->send(new VerifyAccountMail($user, $verification_code));
+                
         }catch(\Exception $e){
             $message = $e->getMessage();
             return CustomResponse::error($message);
         }
-        $admins = Admin::all();
-        Notification::send($admins, new AdminUserNotification('New user', 'A new user has registered successfully'));
+
         $message = 'Thanks for signing up! Please check your email to complete your registration.';
         return CustomResponse::success($message, $user, 201);
     }
+    
+    public function sendverificationcode(Request $request)
+    {
+     
+        try{
+     
+            $user = User::where(['email' => $request['email']])->first();
+            $code = mt_rand(1000, 9999);
+            
+            //return $code;
+
+            DB::table('user_verification')->where('email',$request->email)
+            ->update([
+                    'code' => $code, 
+                    'expiry_time' => Carbon::now()->addMinutes(6)
+                ]);
+
+            Mail::to($user->email)
+                ->send(new VerifyAccountMail($user, $code));
+                
+        }catch(\Exception $e){
+            $message = $e->getMessage();
+            return CustomResponse::error($message);
+        }
+        
+        return CustomResponse::success("A new verification code has been sent to your email.", null);
+    }
+    
+    
+    public function verifyUser(VerifyAccount $request)
+    {
+        $check = DB::table('user_verification')
+        ->where([
+            'email' => $request['email'], 
+            'code' => $request['code']
+        ])->first();
+        $current_time = Carbon::now();
+        try{
+            switch(is_null($check)):
+                case(false):
+                    if($check->expiry_time < $current_time):
+                        $message = 'Verification code is expired';
+                    else:
+                        $user = User::where(['email' => $check->email])->first();
+                        $user->email_verified_at = $current_time;
+                        $user->save();
+
+                        DB::table('user_verification')
+                        ->where('code', $request['code'])->delete();
+
+                        $message = 'Your email address is verified successfully.';
+                        return CustomResponse::success($message, null);
+                    endif;
+                break;
+                default:
+                    $message = "The code you entered is incorrect. Please enter the correct code and retry";
+            endswitch;
+        }catch(\Exception $e){
+            $error_message = $e->getMessage();
+            return CustomResponse::error($error_message);
+        }
+    }
+    
+    
 
     public function logout()
     {
@@ -102,7 +180,7 @@ class AuthService
             $token->delete();
         });
 
-        $token = $user->createToken("MarketStreet")->plainTextToken;
+        $token = $user->createToken("Peddle")->plainTextToken;
         return CustomResponse::success("token refreshed successfully", $token);
     }
 
@@ -189,6 +267,22 @@ class AuthService
             return CustomResponse::error($error_message);
         }
 
+        return CustomResponse::success($message, null);
+    }
+    
+    public function saveFCMToken(Request $request)
+    {
+        $user = auth()->user();
+        try{
+            DB::table('users')->where(['id'=> $user->id])
+            ->update([
+                'fcm_token' => $request->token
+            ]);
+            $message = 'FCM token updated successfully';
+        }catch(\Exception $e){
+            $error_message = $e->getMessage();
+            return CustomResponse::error($error_message);
+        }
         return CustomResponse::success($message, null);
     }
 

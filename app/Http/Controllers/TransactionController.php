@@ -8,12 +8,11 @@ use App\Services\TransactionService;
 
 class TransactionController extends Controller
 {
-    protected TransactionService $transactionService;
+    protected TransactionService $transactionService; 
 
     public function __construct(
         TransactionService $transactionService
     )
-    
     {
         $this->transactionService = $transactionService;
     }

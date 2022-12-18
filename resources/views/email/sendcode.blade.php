@@ -13,9 +13,9 @@
 <div style="font-family: 'Poppins', sans-serif;">
     Hi Osemeilu Itua,
     <br>
-    Thank you for creating an account with us at Workpro. Verify your account to complete the registration!
+    Thank you for creating an account with us at Peddle Limited. Verify your account to complete the registration!
     <br>
-    Please click on the link below or copy Gbenga it into the address bar of your browser to confirm your email address:
+    Please click on the link below or copy it into the address bar of your browser to confirm your email address:
     <br>
     <b>4567</b>
 

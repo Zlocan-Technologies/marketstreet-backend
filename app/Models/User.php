@@ -25,8 +25,7 @@ class User extends Authenticatable
         'password',
         'email_verified_at',
         'fcm_token',
-        'photo',
-        'isBlocked'
+        'photo'
     ];
 
     protected $hidden = [
@@ -47,6 +46,11 @@ class User extends Authenticatable
     protected $dates = ['deleted_at'];
 
     protected $with = ['profile', 'bankDetail'];
+
+    protected $appends = [
+        'email_notification', 
+        'push_notification'
+    ];
 
     protected function firstname(): Attribute
     {
@@ -83,7 +87,7 @@ class User extends Authenticatable
     public function profile()
     {
         return $this->hasOne(UserProfile::class);
-    }
+    } 
 
     public function orders()
     {
@@ -110,63 +114,24 @@ class User extends Authenticatable
         return $this->hasMany(Wishlist::class);
     }
 
-
-
-
-
-
-    // getters and setters
-
-
-    public function setFirstname($firstname){
-        return $this->firstname= $firstname;
-    }
-    public function getFirstname(){
-        return $this->firstname;
+    public function getEmailNotificationAttribute()
+    {
+        $notify = EmailNotification::find($this->email)->pluck('is_subscribed')[0];
+        if((int)$notify === 0):
+            return false;
+        else:
+            return true;
+        endif;
     }
 
-    public function setLastName($lastname){
-        return $this->lastname= $lastname;
+    public function getPushNotificationAttribute()
+    {
+        $notify = PushNotification::find($this->id)->pluck('is_subscribed')[0];
+        if((int)$notify === 0):
+            return false;
+        else:
+            return true;
+        endif;
     }
-    public function getLastName(){
-        return $this->lastname;
-    }
-
-    public function setEmail($email){
-        return $this->email=$email;
-    }
-
-    //
-    public function getPhone(){
-        return $this->phone;
-    }
-    public function setPhone($phone){
-        return $this->phone=$phone;
-    }
-
-    //
-    public function setPassword($password){
-        return $this->password= $password;
-    }
-
-    public function getPassword(){
-        return $this->password;
-    }
-
-    public function setFcmToken($fcm_token){
-        return $this->fcm_token=$fcm_token;
-    }
-    public function getFcmToken(){
-        return $this->fcm_token;
-    }
-
-    public function setPhoto($photo){
-        return $this->photo=$photo;
-    }
-    public function getPhoto(){
-        return $this->photo;
-    }
-
-
 
 }

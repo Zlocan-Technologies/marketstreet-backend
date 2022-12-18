@@ -13,13 +13,9 @@ class Flutterwave
 
     public function __construct()
     {
-        // $this->secretKey = env('FLW_SECRET_KEY', '');
-        $this->secretKey = config('admin.flw_secret_key');
-
+        $this->secretKey = env('FLW_SECRET_KEY', '');
         $this->baseUrl = 'https://api.flutterwave.com/v3/';
-        // $this->secretHash = env('FLW_SECRET_HASH', '');
-        $this->secretKey = config('admin.flw_secret_hash');
-
+        $this->secretHash = env('FLW_SECRET_HASH', '');
     }
 
     public function initializePayment(User $user, array $data)

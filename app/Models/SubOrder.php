@@ -20,12 +20,12 @@ class SubOrder extends Model
     ];
 
     protected $hidden = [
-        'created_at',
+        'updated_at',
     ];
 
     protected $with = ['contents'];
     
-    protected function updatedAt(): Attribute
+    protected function createdAt(): Attribute
     {
         return Attribute::make(
             get: fn ($value) => Carbon::parse($value)->toFormattedDateString(),
@@ -40,6 +40,18 @@ class SubOrder extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'order_contents');
+        return $this->belongsToMany(Product::class, 'order_contents')
+            ->without('owner', 'reviews')
+                ->withTrashed();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
     }
 }
