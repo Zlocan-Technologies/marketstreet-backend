@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->string('street', 255)->nullable();
+            $table->string('address', 255)->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->timestamps();
