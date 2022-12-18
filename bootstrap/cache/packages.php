@@ -10,24 +10,6 @@
       'WebSocketRouter' => 'BeyondCode\\LaravelWebSockets\\Facades\\WebSocketRouter',
     ),
   ),
-  'jackiedo/dotenv-editor' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Jackiedo\\DotenvEditor\\DotenvEditorServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'DotenvEditor' => 'Jackiedo\\DotenvEditor\\Facades\\DotenvEditor',
-    ),
-  ),
-  'kutia-software-company/larafirebase' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Kutia\\Larafirebase\\Providers\\LarafirebaseServiceProvider',
-    ),
-  ),
   'laravel/fortify' => 
   array (
     'providers' => 
@@ -65,13 +47,6 @@
     'providers' => 
     array (
       0 => 'Laravel\\Tinker\\TinkerServiceProvider',
-    ),
-  ),
-  'laravel/ui' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Ui\\UiServiceProvider',
     ),
   ),
   'nesbot/carbon' => 

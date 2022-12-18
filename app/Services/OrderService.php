@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Services\FCMService;
 use App\Util\{
     CustomResponse, 
     Paystack, 
@@ -11,7 +12,9 @@ use App\Util\{
     Helper
 };
 use App\Http\Resources\{
-    ProductResource
+    ProductResource,
+    SalesResource,
+    PurchaseResource
 };
 use App\Http\Requests\{
     CreateOrder, 
@@ -19,27 +22,19 @@ use App\Http\Requests\{
 };
 use Illuminate\Support\Facades\{
     DB,
-    Http, 
-    Crypt, 
-    Hash, 
     Mail,
-    Notification
+    Validator
 };
-
-use App\Notifications\AdminUserNotification;
-
 use App\Models\{
     User, 
-    Product, 
-    Category, 
+    Product,
     Order, 
     SubOrder,
-    OrderContent,
-    Admin
+    Address,
+    OrderContent
 };
 use App\Events\{
-    InvoiceSent,
-    OrderPlaced
+    InvoiceSent
 };
 
 class OrderService
@@ -73,10 +68,6 @@ class OrderService
                 'payment_channel' => $channel,
                 'coupon_code' => isset($request['coupon_code']) ? $request['coupon_code'] : NULL
             ]);
-            $admins = Admin::all();
-            //send notfication
-            Notification::send($admins, new AdminUserNotification('New Orders are Available!' ,'New orders have been placed'));
-
             $array = [];
             foreach($request['cart'] as $item):
                 $product = Product::find($item['id']);
@@ -122,7 +113,23 @@ class OrderService
                 
                 array_push($array, $product->seller_id);
             endforeach;
+            Address::create([
+                'order_id' => $order->id,
+                'city' => $request["address"]['city'],
+                'state' => $request["address"]['state'],
+                'street' => $request["address"]['street']
+            ]);
         });
+        
+        
+            FCMService::send(
+                    $user->fcm_token,
+                    [
+                        'title' => 'Order Placed',
+                        'body' => 'Hi '.$user->firstname.', your order has been placed and is currently awaiting payment',
+                        'route' => '/notifications'
+                    ]
+                );
        
         return CustomResponse::success("Payment Link:", $url);
     }
@@ -150,35 +157,105 @@ class OrderService
         endif;
     }
 
-    public function listOrdersForBuyer()
+    public function listBuyerOrders($id)
     {
-        $user = auth()->user();
-        $orders = User::find($user->id)->orders;
-        if(!$orders) return CustomResponse::error('No orders found', 404);
-
-        return CustomResponse::success("Orders:", $orders);
+        $user = User::find($id);
+        $orders = $user->orders;
+        $items = [];
+        foreach($orders as $order):
+            $subOrders = $order->subOrders;
+            foreach($subOrders as $subOrder):
+                $orderNo = $subOrder->order_no;
+                $status = $subOrder->order_status;
+                $contents = $subOrder->contents;
+                foreach($contents as $content):
+                    $product = $content->product;
+                    $item = [
+                        'id' => $content->id,
+                        'product_name' => $product->name,
+                        'status' => $status,
+                        'order_number'=> $orderNo,
+                        'amount' => $content->price,
+                        'brand_name' => $product->brand,
+                        'images' => $product->images
+                    ];
+                    array_push($items, (object) $item);
+                endforeach;
+            endforeach;
+           // $order->items = $items;
+        endforeach;
+        //$orders = PurchaseResource::collection($orders);
+        return CustomResponse::success("Orders:", $items);
     }
 
-    public function show($id)
+    public function listSellerOrders($id)
     {
-        $order = Order::find($id);
-        if(!$order) return CustomResponse::error('No order found', 404);
-
-        return CustomResponse::success("Order Details:", $order);
+        $user = User::find($id);
+        $subOrders = $user->subOrders;
+        $items = [];
+        foreach($subOrders as $subOrder):
+            $orderNo = $subOrder->order_no;
+            $status = $subOrder->order_status;
+            $contents = $subOrder->contents;
+            foreach($contents as $content):
+                $product = $content->product;
+                    $item = [
+                        'id' => $content->id,
+                        'product_name' => $product->name,
+                        'status' => $status,
+                        'order_number'=> $orderNo,
+                        'amount' => $content->price,
+                        'brand_name' => $product->brand,
+                        'images' => $product->images
+                    ];
+                    array_push($items, (object) $item);
+            endforeach;
+            //$subOrder->contents = $items;
+        endforeach;
+        //$subOrders = SalesResource::collection($subOrders);
+        return CustomResponse::success("Orders:", $items);
     }
 
-    public function test()
+    public function fetchBuyerOrderData($orderId)
     {
-        /*$url = 'http://res.cloudinary.com/dxhlsyysg/image/upload/v1664489429/aqgyd43nyjie2dqgxhcl.jpg';
-        $parts = explode('/', $url);
-        $count = count($parts);
-        $explode = explode('.', $parts[$count - 1]);
-        $response = \Cloudinary\Uploader::destroy($explode[0]);
-        return $response;*/
-        return User::find(1)->subOrders;
-        return SubOrder::find(1)->products;
-        return SubOrder::find(1)->contents;
-        return Product::find(1)->orders;
+        $content = OrderContent::find($orderId);
+        $product = $content->product;
+        $subOrder = $content->subOrder;
+        $items = [];
+        $item = [
+            'id' => $content->id,
+            'product_name' => $product->name,
+            'status' => $subOrder->order_status,
+            'order_number'=> $subOrder->order_no,
+            'amount' => $content->price,
+            'brand_name' => $product->brand,
+            'images' => $product->images
+        ];
+        array_push($items, (object) $item);
+        if(!$content) return CustomResponse::error('No order found', 404);
+
+        return CustomResponse::success("Order Details:", $items);
+    }
+
+    public function fetchSellerOrderData($orderId)
+    {
+        $content = OrderContent::find($orderId);
+        $product = $content->product;
+        $subOrder = $content->subOrder;
+        $items = [];
+        $item = [
+            'id' => $content->id,
+            'product_name' => $product->name,
+            'status' => $subOrder->order_status,
+            'order_number'=> $subOrder->order_no,
+            'amount' => $content->price,
+            'brand_name' => $product->brand,
+            'images' => $product->images
+        ];
+        array_push($items, (object) $item);
+        if(!$content) return CustomResponse::error('No order found', 404);
+
+        return CustomResponse::success("Order Details:", $items);
     }
 
     public function sendInvoice(CreateInvoice $request)
@@ -232,20 +309,37 @@ class OrderService
         });
 
         InvoiceSent::dispatch($order);
-        $admins = Admin::all();
-            //send notfication
-        Notification::send($admins, new AdminUserNotification('New Invoice sent','your invoice has been sent successfully!'));
-
+       
         return CustomResponse::success("An invoice has been sent to the buyer", $order->fresh());
     }
 
     public function invoicePayment(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer',
+            'payment_channel' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'street' => 'required|string',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $order = Order::find($request['id']);
         $user = User::find($order->user_id);
         $channel = strtoupper($request['payment_channel']);
         $order->payment_channel = $channel;
         $order->save();
+        Address::create([
+            'order_id' => $order->id,
+            'city' => $request['city'],
+            'state' => $request['state'],
+            'street' => $request['street']
+        ]);
         $total = $order->total;
         $reference = $order->reference;
         $url = $this->generatePaymentUrl($user, $channel, $total, $reference);
@@ -255,6 +349,18 @@ class OrderService
 
     public function fetchCouponData($code)
     {
+        $validator = Validator::make([
+            'code' => $code,
+        ], [
+            'code' => 'required|string',
+        ]);
+        if($validator->fails()):
+            return response([
+                'message' => $validator->errors()->first(),
+                'error' => $validator->getMessageBag()->toArray()
+            ], 422);
+        endif;
+
         $coupon = DB::table('coupons')
         ->where([
             'code' => $code

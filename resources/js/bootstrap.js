@@ -1,9 +1,5 @@
 window._ = require('lodash');
 
-try {
-    require('bootstrap');
-} catch (e) {}
-
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
  * to our Laravel back-end. This library automatically handles sending the
@@ -20,13 +16,18 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * allows your team to easily build robust real-time web applications.
  */
 
-// import Echo from 'laravel-echo';
+ import Echo from 'laravel-echo';
 
-// window.Pusher = require('pusher-js');
+ window.Pusher = require('pusher-js');
 
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    //key: process.env.MIX_PUSHER_APP_KEY,
+    key: anykey,
+    //cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+    forceTLS: false,
+    encrypted: false,
+    disableStats: true,
+    wsPort: 6001,
+    wsHost: "127.0.0.1"
+});
